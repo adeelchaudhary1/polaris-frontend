@@ -1,0 +1,10 @@
+.wrapper--rounded::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: -5px;
+  right: -5px;
+  border: 6px solid #110d2a;
+  border-radius: 0.8rem;
+}
