@@ -52,6 +52,8 @@ export interface FarmConfig {
   isMajor?: boolean
   isCommunity?: boolean
   risk: number
+  earnSymbol?: string
+  polarPoolAddress?: string
   dual?: {
     rewardPerBlock: number
     earnLabel: string

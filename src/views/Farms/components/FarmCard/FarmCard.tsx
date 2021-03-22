@@ -154,7 +154,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
     : '-'
 
   const lpLabel = farm.lpSymbol
-  const earnLabel = 'POLAR'
+  const earnLabel = farm.earnSymbol ? farm.earnSymbol : 'POLAR';
   const farmAPY =
     farm.apy &&
     farm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
@@ -163,6 +163,9 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
     })
 
   const { quoteTokenAdresses, quoteTokenSymbol, tokenAddresses, risk } = farm
+
+  console.log(borderEnable);
+  
 
   if (borderEnable) {
     return (
@@ -249,7 +252,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
         <Flex justifyContent="space-between" alignItems="center">
           <Text color="#ABABAB">{TranslateString(352, 'APR')}:</Text>
           <Text bold style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
-            {farm.apy ? (
+            {/* {farm.apy ? (
               <>
                 <ApyButton
                   lpLabel={lpLabel}
@@ -263,7 +266,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
               </>
             ) : (
               <Skeleton height={24} width={80} />
-            )}
+            )} */}
           </Text>
         </Flex>
       )}

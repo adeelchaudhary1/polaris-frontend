@@ -8,7 +8,7 @@ import { Farm } from 'state/types'
 import { useFarmFromPid, useFarmFromSymbol, useFarmUser } from 'state/hooks'
 import useI18n from 'hooks/useI18n'
 import UnlockButton from 'components/UnlockButton'
-import { useApprove } from 'hooks/useApprove'
+import { useApprove, usePolarApprove } from 'hooks/useApprove'
 import StakeAction from './StakeAction'
 import HarvestAction from './HarvestAction'
 
@@ -43,16 +43,21 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ farm, ethereum, account }
   }, [ethereum, lpAddress, tokenAddress, isTokenOnly])
 
   const { onApprove } = useApprove(lpContract)
+  const { onApprove: onApprovePolar } = usePolarApprove(lpContract, farm.polarPoolAddress);
 
   const handleApprove = useCallback(async () => {
     try {
       setRequestedApproval(true)
-      await onApprove()
+      if (farm.polarPoolAddress) {
+        await onApprovePolar()
+      } else {
+        await onApprove()
+      }
       setRequestedApproval(false)
     } catch (e) {
       console.error(e)
     }
-  }, [onApprove])
+  }, [onApprove, onApprovePolar, farm.polarPoolAddress])
 
   const renderApprovalOrStakeButton = () => {
     return isApproved ? (
