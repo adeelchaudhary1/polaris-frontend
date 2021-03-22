@@ -164,9 +164,6 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
 
   const { quoteTokenAdresses, quoteTokenSymbol, tokenAddresses, risk } = farm
 
-  console.log(borderEnable);
-  
-
   if (borderEnable) {
     return (
       <FCardBorder>
