@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useRefresh from 'hooks/useRefresh'
 import { fetchFarmsPublicDataAsync, fetchPoolsPublicDataAsync, fetchPoolsUserDataAsync } from './actions'
-import { State, Farm, Pool } from './types'
+import { State, Farm, Pool, SFarm } from './types'
 import { QuoteToken } from '../config/constants/types'
 
 const ZERO = new BigNumber(0)
@@ -106,4 +106,11 @@ export const useTotalValue = (): BigNumber => {
     }
   }
   return value;
+}
+
+// Supernova Farms
+
+export const useSFarms = (): SFarm[] => {
+  const sfarms = useSelector((state: State) => state.sFarms.data)
+  return sfarms
 }

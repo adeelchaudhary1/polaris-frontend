@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import BigNumber from 'bignumber.js'
-import { Button, Flex, Heading } from '@pancakeswap-libs/uikit'
+import { Button, Flex, Heading, useModal } from '@pancakeswap-libs/uikit'
 import useI18n from 'hooks/useI18n'
 import { useHarvest } from 'hooks/useHarvest'
 import { getBalanceNumber } from 'utils/formatBalance'
 import styled from 'styled-components'
 import useStake from '../../../../hooks/useStake'
+import HarvestModal from '../HarvestModal'
 
 interface FarmCardActionsProps {
   earnings?: BigNumber
@@ -28,6 +29,14 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ earnings, pid }) => {
   const rawEarningsBalance = getBalanceNumber(earnings)
   const displayBalance = rawEarningsBalance.toLocaleString()
 
+
+  const tempMax = new BigNumber(1355 * 10 ** 18)
+  const tempPolarMax = new BigNumber(500 * 10 ** 18)
+  const tempMaxHarvest = new BigNumber(180 * 10 ** 18)
+  const tempTokenName = "POLAR-BNB LP"
+  
+  const [onPresentHarvest] = useModal(<HarvestModal max={tempMax} maxPolar={tempPolarMax} maxHarvest={tempMaxHarvest} onConfirm={onReward} tokenName={tempTokenName} />)
+
   return (
     <Flex mb="8px" justifyContent="space-between" alignItems="center">
       <Heading color={rawEarningsBalance === 0 ? 'textDisabled' : 'text'}>{displayBalance}</Heading>
@@ -49,13 +58,9 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ earnings, pid }) => {
         ) : null}
         <Button
           disabled={rawEarningsBalance === 0 || pendingTx}
-          onClick={async () => {
-            setPendingTx(true)
-            await onReward()
-            setPendingTx(false)
-          }}
+          onClick={onPresentHarvest}
         >
-          {TranslateString(999, 'Harvest')}
+          {TranslateString(999, 'Unstake')}
         </Button>
       </BalanceAndCompound>
     </Flex>

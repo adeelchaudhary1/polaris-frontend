@@ -33,7 +33,7 @@ const config: MenuEntry[] = [
   {
     label: 'Supernovas (Coming soon)',
     icon: 'GeyserIcon',
-    href: '/#',
+    href: '/supernova',
   },
 
   // {

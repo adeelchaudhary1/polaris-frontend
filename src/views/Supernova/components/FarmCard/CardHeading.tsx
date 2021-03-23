@@ -5,7 +5,7 @@ import { CommunityTag, CoreTag, NoFeeTag, RiskTag } from 'components/Tags'
 import iconLinks from '../../../../config/constants/iconLinks'
 
 export interface ExpandableSectionProps {
-  lpLabel?: string
+  stakeLabel?: string
   multiplier?: string
   risk?: number
   depositFee?: number
@@ -33,10 +33,8 @@ const AvatarDiv = styled.div`
 `
 
 const CardHeading: React.FC<ExpandableSectionProps> = ({
-  lpLabel,
+  stakeLabel,
   multiplier,
-  risk,
-  farmImage,
   tokenSymbol,
   depositFee,
 }) => {
@@ -46,7 +44,7 @@ const CardHeading: React.FC<ExpandableSectionProps> = ({
       <AvatarDiv>
         <img
           alt=""
-          src={iconLinks[lpLabel]}
+          src={iconLinks[tokenSymbol]}
           style={{ position: 'absolute', width: '30px', height: '30px', left: 0, zIndex: 1 }}
         />
         <div style={{ position: 'absolute', left: '8px', top: '8px', width: '55px' }}>
@@ -55,7 +53,7 @@ const CardHeading: React.FC<ExpandableSectionProps> = ({
       </AvatarDiv>
       <Flex flexDirection="column" alignItems="flex-end">
         <Heading mb="4px" color="#7D65FF">
-          {lpLabel}
+          {stakeLabel}
         </Heading>
         <Flex justifyContent="center">
           {depositFee === 0 ? <NoFeeTag /> : null}

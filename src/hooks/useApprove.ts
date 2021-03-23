@@ -26,24 +26,6 @@ export const useApprove = (lpContract: Contract) => {
   return { onApprove: handleApprove }
 }
 
-// Approve a Polar Pool
-export const usePolarApprove = (lpContract: Contract, poolContract: string) => {
-  const dispatch = useDispatch()
-  const { account }: { account: string } = useWallet()
-
-  const handleApprove = useCallback(async () => {
-    try {
-      const tx = await approve(lpContract, poolContract, account)
-      dispatch(fetchFarmUserDataAsync(account))
-      return tx
-    } catch (e) {
-      return false
-    }
-  }, [account, dispatch, lpContract, poolContract])
-
-  return { onApprove: handleApprove }
-}
-
 // Approve a Pool
 export const useSousApprove = (lpContract: Contract, sousId) => {
   const dispatch = useDispatch()

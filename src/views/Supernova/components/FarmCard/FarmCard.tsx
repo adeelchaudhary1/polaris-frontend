@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import styled, { keyframes } from 'styled-components'
 import { Flex, Text, Skeleton } from '@pancakeswap-libs/uikit'
 import { communityFarms } from 'config/constants'
-import { Farm } from 'state/types'
+import { SFarm } from 'state/types'
 import { provider } from 'web3-core'
 import useI18n from 'hooks/useI18n'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
@@ -13,7 +13,7 @@ import CardHeading from './CardHeading'
 import CardActionsContainer from './CardActionsContainer'
 import ApyButton from './ApyButton'
 
-export interface FarmWithStakedValue extends Farm {
+export interface SFarmWithStakedValue extends SFarm {
   apy?: BigNumber
 }
 
@@ -68,6 +68,35 @@ const FCard = styled.div`
   position: relative;
   text-align: center;
 `
+const FCardBorder = styled.div`
+  align-self: baseline;
+  background: ${(props) => props.theme.card.background};
+
+  border: 3px solid;
+  border-image: conic-gradient(red, yellow, lime, aqua, blue, magenta, red) 1;
+  border-radius: 15px;
+
+  box-sizing: border-box;
+  margin: 1rem auto 2rem;
+  padding: 1rem;
+  // background: linear-gradient(${(props) => props.theme.card.background}, ${(props) => props.theme.card.background}),
+  //   linear-gradient(90deg, #99a3ff 0%, #1fc7d4 27.08%, #fec803 64.06%, #ff4eb8 100%);
+  // border: 5px solid transparent;
+  // background-repeat: no-repeat;
+  // background-origin: padding-box, border-box;
+
+  // border-radius: 1rem;
+  // border-width: 4px;
+  position: relative;
+
+  // box-shadow: 0px 2px 12px -8px rgba(25, 19, 38, 0.1), 0px 1px 1px rgba(25, 19, 38, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 24px;
+  position: relative;
+  text-align: center;
+`
 
 const Divider = styled.div`
   background-color: #181334;
@@ -82,7 +111,7 @@ const ExpandingWrapper = styled.div<{ expanded: boolean }>`
 `
 
 interface FarmCardProps {
-  farm: FarmWithStakedValue
+  sFarm: SFarmWithStakedValue
   removed: boolean
   cakePrice?: BigNumber
   bnbPrice?: BigNumber
@@ -90,93 +119,90 @@ interface FarmCardProps {
   account?: string
 }
 
-const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice, ethereum, account }) => {
+const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
   const [showExpandableSection, setShowExpandableSection] = useState(false)
 
-  // const isCommunityFarm = communityFarms.includes(farm.tokenSymbol)
+  // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
-  // const farmImage = farm.lpSymbol.split(' ')[0].toLocaleLowerCase()
-  const farmImage = farm.isTokenOnly
-    ? farm.tokenSymbol.toLowerCase()
-    : `${farm.tokenSymbol.toLowerCase()}-${farm.quoteTokenSymbol.toLowerCase()}`
-
-  const totalValue: BigNumber = useMemo(() => {
-    if (!farm.lpTotalInQuoteToken) {
-      return null
-    }
-    if (farm.quoteTokenSymbol === QuoteToken.BNB) {
-      return bnbPrice.times(farm.lpTotalInQuoteToken)
-    }
-    if (farm.quoteTokenSymbol === QuoteToken.CAKE) {
-      return cakePrice.times(farm.lpTotalInQuoteToken)
-    }
-    return farm.lpTotalInQuoteToken
-  }, [bnbPrice, cakePrice, farm.lpTotalInQuoteToken, farm.quoteTokenSymbol])
+  // const farmImage = sFarm.lpSymbol.split(' ')[0].toLocaleLo\werCase()
+  const totalValue: BigNumber = new BigNumber(100)
 
   const totalValueFormated = totalValue
     ? `$${Number(totalValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
     : '-'
 
-  const lpLabel = farm.lpSymbol
-  const earnLabel = 'POLAR'
-  const farmAPY =
-    farm.apy &&
-    farm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-
-  const { quoteTokenAdresses, quoteTokenSymbol, tokenAddresses, risk } = farm
+  const stakeLabel = sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol
+  const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
+  const farmAPY = new BigNumber(1039.35).toNumber().toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+    // sFarm.apy &&
+    // sFarm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
+    //   minimumFractionDigits: 2,
+    //   maximumFractionDigits: 2,
+    // })
 
   return (
-    <FCard>
-      {farm.tokenSymbol === 'POLAR' && <StyledCardAccent />}
+    <FCardBorder>
       <CardHeading
-        lpLabel={lpLabel}
-        multiplier={farm.multiplier}
-        risk={risk}
-        depositFee={farm.depositFeeBP}
-        farmImage={farmImage}
-        tokenSymbol={farm.tokenSymbol}
+        stakeLabel={stakeLabel}
+        // multiplier={sFarm.multiplier}
+        // depositFee={sFarm.depositFeeBP}
+        multiplier="40x"
+        depositFee={0}
+        tokenSymbol={sFarm.sTokenSymbol}
       />
       {!removed && (
         <Flex justifyContent="space-between" alignItems="center">
           <Text color="#ABABAB">{TranslateString(352, 'APR')}:</Text>
           <Text bold style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
-            {farm.apy ? (
+            {sFarm.apy ? (
               <>
                 <ApyButton
-                  lpLabel={lpLabel}
-                  quoteTokenAdresses={quoteTokenAdresses}
-                  quoteTokenSymbol={quoteTokenSymbol}
-                  tokenAddresses={tokenAddresses}
+                  lpLabel={sFarm.sLpSymbol}
+                  quoteTokenAdresses={sFarm.sQuoteTokenAdresses}
+                  quoteTokenSymbol={sFarm.sQuoteTokenSymbol}
+                  tokenAddresses={sFarm.sTokenAddresses}
                   cakePrice={cakePrice}
-                  apy={farm.apy}
+                  apy={sFarm.apy}
                 />
                 {farmAPY}%
               </>
             ) : (
-              <Skeleton height={24} width={80} />
-            )}
+                <Skeleton height={24} width={80} />
+              )}
           </Text>
         </Flex>
       )}
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(318, 'Earn')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          {earnLabel}
+          {rewardLabel}
         </Text>
       </Flex>
       <Flex justifyContent="space-between">
-        <Text color="#ABABAB">{TranslateString(10001, 'Deposit Fee')}:</Text>
+        <Text color="#ABABAB">{TranslateString(20001, 'Total Rewards')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          {farm.depositFeeBP / 100}%
+          1,000 WBNB
         </Text>
       </Flex>
-      <CardActionsContainer farm={farm} ethereum={ethereum} account={account} />
+      <Flex justifyContent="space-between">
+        <Text color="#ABABAB">{TranslateString(20001, 'Time Left')}:</Text>
+        <Text bold style={{ fontSize: '16px' }}>
+          7 Days
+        </Text>
+      </Flex>
+      <Flex justifyContent="space-between">
+        <Text color="#ABABAB">{TranslateString(20001, 'Current Multiplier')}:</Text>
+        <Text bold style={{ fontSize: '16px' }}>
+          1x
+        </Text>
+      </Flex>
+      <CardActionsContainer sFarm={sFarm} ethereum={ethereum} account={account} />
       <Divider />
       <ExpandableSectionButton
         onClick={() => setShowExpandableSection(!showExpandableSection)}
@@ -185,20 +211,20 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm, removed, cakePrice, bnbPrice,
       <ExpandingWrapper expanded={showExpandableSection}>
         <DetailsSection
           removed={removed}
-          isTokenOnly={farm.isTokenOnly}
+          isTokenOnly={sFarm.isStakeSingleToken}
           bscScanAddress={
-            farm.isTokenOnly
-              ? `https://bscscan.com/token/${farm.tokenAddresses[process.env.REACT_APP_CHAIN_ID]}`
-              : `https://bscscan.com/token/${farm.lpAddresses[process.env.REACT_APP_CHAIN_ID]}`
+            sFarm.isStakeSingleToken
+              ? `https://bscscan.com/token/${sFarm.sTokenSymbol[process.env.REACT_APP_CHAIN_ID]}`
+              : `https://bscscan.com/token/${sFarm.sLpSymbol[process.env.REACT_APP_CHAIN_ID]}`
           }
           totalValueFormated={totalValueFormated}
-          lpLabel={lpLabel}
-          quoteTokenAdresses={quoteTokenAdresses}
-          quoteTokenSymbol={quoteTokenSymbol}
-          tokenAddresses={tokenAddresses}
+          lpLabel={sFarm.sLpSymbol}
+          quoteTokenAdresses={sFarm.sQuoteTokenAdresses}
+          quoteTokenSymbol={sFarm.sQuoteTokenSymbol}
+          tokenAddresses={sFarm.sTokenAddresses}
         />
       </ExpandingWrapper>
-    </FCard>
+    </FCardBorder>
   )
 }
 

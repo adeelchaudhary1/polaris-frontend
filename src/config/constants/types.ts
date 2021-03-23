@@ -52,13 +52,30 @@ export interface FarmConfig {
   isMajor?: boolean
   isCommunity?: boolean
   risk: number
-  earnSymbol?: string
-  polarPoolAddress?: string
   dual?: {
     rewardPerBlock: number
     earnLabel: string
     endBlock: number
   }
+}
+
+export interface SFarmConfig {
+  pid: number
+  sLpSymbol: string
+  sLpAddresses: Address
+  sTokenSymbol: string
+  sTokenAddresses: Address
+  sQuoteTokenSymbol: QuoteToken
+  sQuoteTokenAdresses: Address
+  rLpSymbol: string
+  rLpAddresses: Address
+  rTokenSymbol: string
+  rTokenAddresses: Address
+  rQuoteTokenSymbol: QuoteToken
+  rQuoteTokenAdresses: Address
+  multiplier?: string
+  isStakeSingleToken?: boolean
+  isRewardSingleToken?: boolean
 }
 
 export interface PoolConfig {
