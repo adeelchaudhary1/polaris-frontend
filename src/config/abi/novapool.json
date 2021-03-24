@@ -476,50 +476,6 @@
 	  "type": "function"
 	},
 	{
-	  "inputs": [
-		{
-		  "internalType": "address",
-		  "name": "addr",
-		  "type": "address"
-		},
-		{
-		  "internalType": "uint256",
-		  "name": "amount",
-		  "type": "uint256"
-		},
-		{
-		  "internalType": "uint256",
-		  "name": "gysr",
-		  "type": "uint256"
-		}
-	  ],
-	  "name": "preview",
-	  "outputs": [
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		},
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		},
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		},
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		}
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
 	  "inputs": [],
 	  "name": "preview",
 	  "outputs": [

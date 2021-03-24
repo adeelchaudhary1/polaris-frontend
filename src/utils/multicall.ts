@@ -23,3 +23,5 @@ const multicall = async (abi: any[], calls: Call[]) => {
 }
 
 export default multicall
+
+

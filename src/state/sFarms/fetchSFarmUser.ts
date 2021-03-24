@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js'
 import erc20ABI from 'config/abi/erc20.json'
+import novapool from 'config/abi/novapool.json'
+
 import multicall from 'utils/multicall'
 import sFarmsConfig from 'config/constants/sfarms'
 
@@ -20,22 +22,50 @@ export const fetchSFarmUserAllowances = async (account: string) => {
 }
 
 export const fetchSFarmUserTokenBalances = async (account: string) => {
-  const data = sFarmsConfig.map((farm) => {
-    return { allowance:  new BigNumber(0).toJSON()}
+  const calls = sFarmsConfig.map((farm) => {
+    const lpContractAddress = farm.sLpAddresses[CHAIN_ID]
+    return {
+      address: lpContractAddress,
+      name: 'balanceOf',
+      params: [account],
+    }
   })
-  return data
+
+  const rawTokenBalances = await multicall(erc20ABI, calls)
+  const parsedTokenBalances = rawTokenBalances.map((tokenBalance) => {
+    return new BigNumber(tokenBalance).toJSON()
+  })
+  return parsedTokenBalances
 }
 
 export const fetchSFarmUserStakedBalances = async (account: string) => {
-  const data = sFarmsConfig.map((farm) => {
-    return { allowance:  new BigNumber(0).toJSON()}
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalStakedFor',
+      params: [account],
+    }
   })
-  return data
+
+  const rawLpAllowances = await multicall(novapool, calls)
+  const parsedLpAllowances = rawLpAllowances.map((lpBalance) => {
+    return new BigNumber(lpBalance).toJSON()
+  })
+  return parsedLpAllowances
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchSFarmUserEarnings = async (account: string) => {
-  const data = sFarmsConfig.map((farm) => {
-    return { allowance:  new BigNumber(0).toJSON()}
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'preview'
+    }
   })
-  return data
+
+  const rawRewardEarning = await multicall(novapool, calls)
+  const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
+    return rewardEarningPreview[0].valueOf()
+  })
+  return parsedRewardEaring
 }
