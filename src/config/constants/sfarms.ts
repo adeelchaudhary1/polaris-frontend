@@ -26,6 +26,7 @@ const sfarms: SFarmConfig[] = [
       97: '',
       56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
     },
+    poolAddress: '0x9056fdf2546391a09B6967371c37f163DC204F80',
     rQuoteTokenSymbol: QuoteToken.BUSD,
     rQuoteTokenAdresses: contracts.busd,
     isStakeSingleToken: false,

@@ -42,6 +42,7 @@ export const fetchSFarmsPublicDataAsync = () => async (dispatch) => {
   dispatch(setFarmsPublicData(farms))
 }
 export const fetchSFarmUserDataAsync = (account) => async (dispatch) => {
+
   const userFarmAllowances = await fetchSFarmUserAllowances(account)
   const userFarmTokenBalances = await fetchSFarmUserTokenBalances(account)
   const userStakedBalances = await fetchSFarmUserStakedBalances(account)

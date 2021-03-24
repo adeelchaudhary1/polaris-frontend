@@ -136,7 +136,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
 
   const stakeLabel = sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
-  const farmAPY = new BigNumber(1039.35).toNumber().toLocaleString(undefined, {
+  const farmAPY = new BigNumber(7.35).toNumber().toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })

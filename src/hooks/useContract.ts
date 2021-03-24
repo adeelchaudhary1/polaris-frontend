@@ -12,6 +12,8 @@ import pancakeRabbits from 'config/abi/pancakeRabbits.json'
 import lottery from 'config/abi/lottery.json'
 import lotteryTicket from 'config/abi/lotteryNft.json'
 import masterChef from 'config/abi/masterchef.json'
+import novapool from 'config/abi/novapool.json'
+
 import sousChef from 'config/abi/sousChef.json'
 import sousChefBnb from 'config/abi/sousChefBnb.json'
 
@@ -67,6 +69,12 @@ export const useLotteryTicket = () => {
 export const useMasterchef = () => {
   const abi = (masterChef as unknown) as AbiItem
   return useContract(abi, getMasterChefAddress())
+}
+
+export const usNovaPool = (novaPoolAddress: string) => {
+  const abi = (novapool as unknown) as AbiItem
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useContract(abi, novaPoolAddress)
 }
 
 export const useSousChef = (id) => {

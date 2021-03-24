@@ -10,9 +10,9 @@ import FlexLayout from 'components/layout/Flex'
 import Page from 'components/layout/Page'
 import { useSFarms, usePriceBnbBusd, usePriceCakeBusd } from 'state/hooks'
 import useRefresh from 'hooks/useRefresh'
-import { fetchFarmUserDataAsync } from 'state/actions'
 import { QuoteToken } from 'config/constants/types'
 import useI18n from 'hooks/useI18n'
+import { fetchSFarmUserDataAsync } from 'state/sFarms'
 import FarmCard, { SFarmWithStakedValue } from './components/FarmCard/FarmCard'
 import FarmTabButtons from './components/FarmTabButtons'
 import Divider from './components/Divider'
@@ -29,7 +29,7 @@ const SFarms: React.FC = () => {
   const { fastRefresh } = useRefresh()
   useEffect(() => {
     if (account) {
-      dispatch(fetchFarmUserDataAsync(account))
+      dispatch(fetchSFarmUserDataAsync(account))
     }
   }, [account, dispatch, fastRefresh])
 

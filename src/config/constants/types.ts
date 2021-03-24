@@ -75,7 +75,8 @@ export interface SFarmConfig {
   rQuoteTokenAdresses: Address
   multiplier?: string
   isStakeSingleToken?: boolean
-  isRewardSingleToken?: boolean
+  isRewardSingleToken?: boolean,
+  poolAddress: string
 }
 
 export interface PoolConfig {

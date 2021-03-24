@@ -1,14 +1,15 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import BigNumber from 'bignumber.js'
 import styled from 'styled-components'
 import { provider } from 'web3-core'
 import { getContract } from 'utils/erc20'
 import { Button, Flex, Text } from '@pancakeswap-libs/uikit'
 import { SFarm } from 'state/types'
-import { useFarmFromPid, useFarmFromSymbol, useFarmUser } from 'state/hooks'
+import { useSFarmFromPid, useSFarmUser } from 'state/hooks'
 import useI18n from 'hooks/useI18n'
 import UnlockButton from 'components/UnlockButton'
-import { useApprove } from 'hooks/useApprove'
+import {  useNovaApprove } from 'hooks/useApprove'
+import { fetchSFarmUserAllowances } from 'state/sFarms/fetchSFarmUser'
 import StakeAction from './StakeAction'
 import HarvestAction from './HarvestAction'
 
@@ -28,8 +29,8 @@ interface FarmCardActionsProps {
 const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account }) => {
   const TranslateString = useI18n()
   const [requestedApproval, setRequestedApproval] = useState(false)
-  const { pid, lpAddresses, tokenAddresses, isTokenOnly, depositFeeBP } = useFarmFromPid(sFarm.pid)
-  const { allowance, tokenBalance, stakedBalance, earnings } = useFarmUser(pid)
+  const { pid, sLpAddresses: lpAddresses, rTokenAddresses: tokenAddresses, depositFeeBP } = useSFarmFromPid(sFarm.pid)
+  const { allowance, tokenBalance, stakedBalance, earnings } = useSFarmUser(pid)
   const lpAddress = lpAddresses[process.env.REACT_APP_CHAIN_ID]
   const tokenAddress = tokenAddresses[process.env.REACT_APP_CHAIN_ID]
   const lpName = sFarm.sLpSymbol.toUpperCase()
@@ -42,13 +43,15 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
 
   const lpContract = useMemo(() => {
-    if (isTokenOnly) {
-      return getContract(ethereum as provider, tokenAddress)
-    }
+    // if (isTokenOnly) {
+    //   return getContract(ethereum as provider, tokenAddress)
+    // }
     return getContract(ethereum as provider, lpAddress)
-  }, [ethereum, lpAddress, tokenAddress, isTokenOnly])
+  }, [ethereum, lpAddress])
 
-  const { onApprove } = useApprove(lpContract)
+
+
+  const { onApprove } = useNovaApprove(lpContract, sFarm.poolAddress)
 
   const handleApprove = useCallback(async () => {
     try {

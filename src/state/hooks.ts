@@ -2,9 +2,10 @@ import BigNumber from 'bignumber.js'
 import { useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useRefresh from 'hooks/useRefresh'
-import { fetchFarmsPublicDataAsync, fetchPoolsPublicDataAsync, fetchPoolsUserDataAsync } from './actions'
+import { fetchFarmsPublicDataAsync, fetchPoolsUserDataAsync } from './actions'
 import { State, Farm, Pool, SFarm } from './types'
 import { QuoteToken } from '../config/constants/types'
+import { fetchSFarmsPublicDataAsync } from './sFarms'
 
 const ZERO = new BigNumber(0)
 
@@ -13,6 +14,8 @@ export const useFetchPublicData = () => {
   const { slowRefresh } = useRefresh()
   useEffect(() => {
     dispatch(fetchFarmsPublicDataAsync())
+    dispatch(fetchSFarmsPublicDataAsync())
+
     // dispatch(fetchPoolsPublicDataAsync())
   }, [dispatch, slowRefresh])
 }
@@ -36,7 +39,8 @@ export const useFarmFromSymbol = (lpSymbol: string): Farm => {
 
 export const useFarmUser = (pid) => {
   const farm = useFarmFromPid(pid)
-
+  // eslint-disable-next-line no-debugger
+  debugger;
   return {
     allowance: farm.userData ? new BigNumber(farm.userData.allowance) : new BigNumber(0),
     tokenBalance: farm.userData ? new BigNumber(farm.userData.tokenBalance) : new BigNumber(0),
@@ -114,3 +118,26 @@ export const useSFarms = (): SFarm[] => {
   const sfarms = useSelector((state: State) => state.sFarms.data)
   return sfarms
 }
+
+
+export const useSFarmFromPid = (pid): SFarm => {
+  const farm = useSelector((state: State) => state.sFarms.data.find((f) => f.pid === pid))
+  return farm
+}
+
+export const useSFarmFromSymbol = (lpSymbol: string): SFarm => {
+  const farm = useSelector((state: State) => state.sFarms.data.find((f) => f.sLpSymbol === lpSymbol))
+  return farm
+}
+
+export const useSFarmUser = (pid) => {
+  const farm = useSFarmFromPid(pid)
+
+  return {
+    allowance: farm.userData ? new BigNumber(farm.userData.allowance) : new BigNumber(0),
+    tokenBalance: farm.userData ? new BigNumber(farm.userData.tokenBalance) : new BigNumber(0),
+    stakedBalance: farm.userData ? new BigNumber(farm.userData.stakedBalance) : new BigNumber(0),
+    earnings: farm.userData ? new BigNumber(farm.userData.earnings) : new BigNumber(0),
+  }
+}
+

@@ -5,7 +5,8 @@ import { ethers } from 'ethers'
 import { useDispatch } from 'react-redux'
 import { updateUserAllowance, fetchFarmUserDataAsync } from 'state/actions'
 import { approve } from 'utils/callHelpers'
-import { useMasterchef, useCake, useSousChef, useLottery } from './useContract'
+import { fetchSFarmUserAllowances } from 'state/sFarms/fetchSFarmUser'
+import { useMasterchef, useCake, useSousChef, useLottery, usNovaPool } from './useContract'
 
 // Approve a Farm
 export const useApprove = (lpContract: Contract) => {
@@ -22,6 +23,25 @@ export const useApprove = (lpContract: Contract) => {
       return false
     }
   }, [account, dispatch, lpContract, masterChefContract])
+
+  return { onApprove: handleApprove }
+}
+
+// Approve a POLAR NOVA
+export const useNovaApprove = (lpContract: Contract, poolAddress: string) => {
+  const dispatch = useDispatch()
+  const { account }: { account: string } = useWallet()
+
+  const novaPoolContract = usNovaPool(poolAddress)
+  const handleApprove = useCallback(async () => {
+    try {
+      const tx = await approve(lpContract, novaPoolContract, account)
+      dispatch(fetchSFarmUserAllowances(account))
+      return tx
+    } catch (e) {
+      return false
+    }
+  }, [account, dispatch, lpContract, novaPoolContract])
 
   return { onApprove: handleApprove }
 }
