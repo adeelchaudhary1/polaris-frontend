@@ -35,10 +35,8 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   const tokenAddress = tokenAddresses[process.env.REACT_APP_CHAIN_ID]
   const lpName = sFarm.sLpSymbol.toUpperCase()
   const isApproved = account && allowance && allowance.isGreaterThan(0)
-
-  const tempStakedBalance = new BigNumber(1355 * 10**18)
-  const tempTokenBalance = new BigNumber(2500 * 10**18)
-  const temEarnings = new BigNumber(60 * 10**18)
+  // eslint-disable-next-line no-debugger
+  debugger;
 
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
 
@@ -66,8 +64,8 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   const renderApprovalOrStakeButton = () => {
     return isApproved ? (
       <StakeAction
-        stakedBalance={tempStakedBalance}
-        tokenBalance={tempTokenBalance}
+        stakedBalance={stakedBalance}
+        tokenBalance={tokenBalance}
         tokenName={lpName}
         pid={pid}
         depositFeeBP={depositFeeBP}
@@ -90,7 +88,7 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
           {TranslateString(999, 'Earned')}
         </Text>
       </Flex>
-      <HarvestAction earnings={temEarnings} pid={pid} />
+      <HarvestAction earnings={earnings} pid={pid} />
       <Flex>
         <Text bold textTransform="uppercase" color="white" fontSize="14px" pr="3px">
           {lpName}

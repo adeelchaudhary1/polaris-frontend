@@ -2,8 +2,9 @@ import { useCallback } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import { useDispatch } from 'react-redux'
 import { fetchFarmUserDataAsync, updateUserStakedBalance, updateUserBalance } from 'state/actions'
-import { stake, sousStake, sousStakeBnb } from 'utils/callHelpers'
-import { useMasterchef, useSousChef } from './useContract'
+import { stake, sousStake, sousStakeBnb, stakeSuperNova } from 'utils/callHelpers'
+import { fetchSFarmUserDataAsync } from 'state/sFarms'
+import { useMasterchef, useSousChef, usNovaPool } from './useContract'
 
 const useStake = (pid: number) => {
   const dispatch = useDispatch()
@@ -21,6 +22,25 @@ const useStake = (pid: number) => {
 
   return { onStake: handleStake }
 }
+
+
+export const useSuperNovaStake = (poolAddress: string) => {
+  const dispatch = useDispatch()
+  const { account } = useWallet()
+  const novaPoolContract = usNovaPool(poolAddress)
+
+  const handleStake = useCallback(
+    async (amount: string) => {
+      const txHash = await stakeSuperNova(novaPoolContract, amount, account)
+      dispatch(fetchSFarmUserDataAsync(account))
+      console.info(txHash)
+    },
+    [account, dispatch, novaPoolContract],
+  )
+
+  return { onStake: handleStake }
+}
+
 
 export const useSousStake = (sousId, isUsingBnb = false) => {
   const dispatch = useDispatch()
