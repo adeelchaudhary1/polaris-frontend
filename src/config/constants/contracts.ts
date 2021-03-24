@@ -27,4 +27,8 @@ export default {
     56: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
     97: '',
   },
+  polar: {
+    56: '0x1C545E9943CFd1b41E60a7917465911fa00Fc28C',
+    97: '',
+  }
 }

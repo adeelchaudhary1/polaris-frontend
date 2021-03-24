@@ -7,8 +7,9 @@ import {
   updateUserBalance,
   updateUserPendingReward,
 } from 'state/actions'
-import { unstake, sousUnstake, sousEmegencyUnstake } from 'utils/callHelpers'
-import { useMasterchef, useSousChef } from './useContract'
+import { unstake, sousUnstake, sousEmegencyUnstake, unstakeSuperNova } from 'utils/callHelpers'
+import { fetchSFarmUserDataAsync } from 'state/sFarms'
+import { useMasterchef, useSousChef, usNovaPool } from './useContract'
 
 const useUnstake = (pid: number) => {
   const dispatch = useDispatch()
@@ -22,6 +23,23 @@ const useUnstake = (pid: number) => {
       console.info(txHash)
     },
     [account, dispatch, masterChefContract, pid],
+  )
+
+  return { onUnstake: handleUnstake }
+}
+
+export const useSuperNovaUnstake = (poolContractAddress: string) => {
+  const dispatch = useDispatch()
+  const { account } = useWallet()
+  const poolContract = usNovaPool(poolContractAddress)
+
+  const handleUnstake = useCallback(
+    async (amount: string, polarAmount = 0) => {
+      const txHash = await unstakeSuperNova(poolContract, account, amount, polarAmount)
+      dispatch(fetchSFarmUserDataAsync(account))
+      console.info(txHash)
+    },
+    [account, dispatch, poolContract],
   )
 
   return { onUnstake: handleUnstake }

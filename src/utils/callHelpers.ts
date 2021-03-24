@@ -52,6 +52,14 @@ export const unstake = async (masterChefContract, pid, amount, account) => {
     })
 }
 
+export const unstakeSuperNova = async (poolContract,account, amount, polarAmount= 0 ) => {
+  return poolContract.methods
+    .unstake( new BigNumber(amount).times(new BigNumber(10).pow(18)).toString(), polarAmount, "0x1234")
+    .send({ from: account })
+    .on('transactionHash', (tx) => {
+      return tx.transactionHash
+    })
+}
 export const sousUnstake = async (sousChefContract, amount, account) => {
   // shit code: hard fix for old CTK and BLK
   if (sousChefContract.options.address === '0x3B9B74f48E89Ebd8b45a53444327013a2308A9BC') {

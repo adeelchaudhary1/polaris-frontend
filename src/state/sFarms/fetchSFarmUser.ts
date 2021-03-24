@@ -62,10 +62,9 @@ export const fetchSFarmUserEarnings = async (account: string) => {
       name: 'preview'
     }
   })
-
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
-    return rewardEarningPreview[0].valueOf()
+    return rewardEarningPreview[0].toString()
   })
   return parsedRewardEaring
 }

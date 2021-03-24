@@ -10,14 +10,14 @@ interface HarvestModalProps {
   max: BigNumber
   maxPolar: BigNumber
   maxHarvest: BigNumber
-  onConfirm: (amount: string) => void
+  onConfirm: (amount: string, polar: string) => void
   onDismiss?: () => void
   tokenName?: string
 }
 
 const HarvestModal: React.FC<HarvestModalProps> = ({ onConfirm, onDismiss, max, maxPolar, maxHarvest, tokenName = '' }) => {
   const [val, setVal] = useState('')
-  const [valPolar, setValPolar] = useState('')
+  const [valPolar, setValPolar] = useState('0')
   const [estimatedHarvestAmount, setEstimatedHarvestAmount] = useState('')
   const [bonusMultiplier, setBonusMultiplier] = useState(1)
   const [pendingTx, setPendingTx] = useState(false)
@@ -88,7 +88,7 @@ const HarvestModal: React.FC<HarvestModalProps> = ({ onConfirm, onDismiss, max, 
           disabled={pendingTx}
           onClick={async () => {
             setPendingTx(true)
-            await onConfirm(val)
+            await onConfirm(val, valPolar)
             setPendingTx(false)
             onDismiss()
           }}

@@ -35,8 +35,6 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   const tokenAddress = tokenAddresses[process.env.REACT_APP_CHAIN_ID]
   const lpName = sFarm.sLpSymbol.toUpperCase()
   const isApproved = account && allowance && allowance.isGreaterThan(0)
-  // eslint-disable-next-line no-debugger
-  debugger;
 
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
 
@@ -88,7 +86,7 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
           {TranslateString(999, 'Earned')}
         </Text>
       </Flex>
-      <HarvestAction earnings={earnings} pid={pid} />
+      <HarvestAction account={account} stakedBalance={stakedBalance} earnings={earnings} pid={pid} />
       <Flex>
         <Text bold textTransform="uppercase" color="white" fontSize="14px" pr="3px">
           {lpName}

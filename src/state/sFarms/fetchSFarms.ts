@@ -1,12 +1,9 @@
 import BigNumber from 'bignumber.js'
 import erc20 from 'config/abi/erc20.json'
-import masterchefABI from 'config/abi/masterchef.json'
-import multicall from 'utils/multicall'
-import { getMasterChefAddress } from 'utils/addressHelpers'
 import sFarmsConfig from 'config/constants/sfarms'
-import { QuoteToken } from '../../config/constants/types'
+import { getPolarContractAddress } from 'utils/addressHelpers'
+import multicall from 'utils/multicall'
 
-const CHAIN_ID = process.env.REACT_APP_CHAIN_ID
 
 const fetchSFarms = async () => {
   const data = await Promise.all(
@@ -17,6 +14,20 @@ const fetchSFarms = async () => {
     }),
   )
   return data
+}
+
+export const fetchPolarBalance = async (account: string) => {
+  const calls = [{
+    address: getPolarContractAddress(),
+    name: 'balanceOf',
+    params: [account],
+  }]
+
+  const rawTokenBalances = await multicall(erc20, calls)
+  const parsedTokenBalances = rawTokenBalances.map((tokenBalance) => {
+    return new BigNumber(tokenBalance).toJSON()
+  })
+  return parsedTokenBalances[0]
 }
 
 export default fetchSFarms

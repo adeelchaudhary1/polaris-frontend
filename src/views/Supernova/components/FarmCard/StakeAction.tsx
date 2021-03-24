@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { Button, Flex, Heading, IconButton, AddIcon, MinusIcon, useModal } from '@pancakeswap-libs/uikit'
 import useI18n from 'hooks/useI18n'
-import useUnstake from 'hooks/useUnstake'
+import { useSuperNovaUnstake } from 'hooks/useUnstake'
 import { getBalanceNumber } from 'utils/formatBalance'
 import { useSuperNovaStake } from 'hooks/useStake'
 import sfarms from 'config/constants/sfarms'
@@ -29,7 +29,7 @@ const StakeAction: React.FC<FarmCardActionsProps> = ({ stakedBalance, tokenBalan
   const farm = sfarms.find(sfarm => sfarm.pid === pid)
   const TranslateString = useI18n()
   const { onStake } = useSuperNovaStake(farm.poolAddress)
-  const { onUnstake } = useUnstake(pid)
+  const { onUnstake } = useSuperNovaUnstake(farm.poolAddress)
 
   const rawStakedBalance = getBalanceNumber(stakedBalance)
   const displayBalance = rawStakedBalance.toLocaleString()

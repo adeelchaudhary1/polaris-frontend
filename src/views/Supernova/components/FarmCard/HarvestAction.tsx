@@ -1,16 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { Button, Flex, Heading, useModal } from '@pancakeswap-libs/uikit'
 import useI18n from 'hooks/useI18n'
-import { useHarvest } from 'hooks/useHarvest'
 import { getBalanceNumber } from 'utils/formatBalance'
 import styled from 'styled-components'
+import { fetchPolarBalance } from 'state/sFarms/fetchSFarms'
+import sfarms from 'config/constants/sfarms'
+import { useSuperNovaUnstake } from 'hooks/useUnstake'
 import useStake from '../../../../hooks/useStake'
 import HarvestModal from '../HarvestModal'
 
 interface FarmCardActionsProps {
   earnings?: BigNumber
-  pid?: number
+  pid: number
+  stakedBalance: BigNumber,
+  account: string
 }
 
 const BalanceAndCompound = styled.div`
@@ -20,42 +24,37 @@ const BalanceAndCompound = styled.div`
   flex-direction: column;
 `
 
-const HarvestAction: React.FC<FarmCardActionsProps> = ({ earnings, pid }) => {
+const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance, earnings, pid }) => {
+  const sFarm = sfarms.find(sFarmObj => sFarmObj.pid === pid)
   const TranslateString = useI18n()
   const [pendingTx, setPendingTx] = useState(false)
-  const { onReward } = useHarvest(pid)
+  const [polarMaxBalance, setPolarMaxBalance] = useState(new BigNumber(0))
+
+  const { onUnstake } = useSuperNovaUnstake(sFarm.poolAddress)
   const { onStake } = useStake(pid)
 
   const rawEarningsBalance = getBalanceNumber(earnings)
   const displayBalance = rawEarningsBalance.toLocaleString()
 
-
-  const tempMax = new BigNumber(1355 * 10 ** 18)
-  const tempPolarMax = new BigNumber(500 * 10 ** 18)
+  useEffect(() => {
+    async function fetchBalance () {
+      const tempPolarMaxBalance = await fetchPolarBalance(account)
+      // eslint-disable-next-line no-debugger
+      debugger;
+      setPolarMaxBalance(new BigNumber(tempPolarMaxBalance))
+    }
+    if(account) {
+      fetchBalance()
+    }
+  }, [account])
   const tempMaxHarvest = new BigNumber(180 * 10 ** 18)
-  const tempTokenName = "POLAR-BNB LP"
   
-  const [onPresentHarvest] = useModal(<HarvestModal max={tempMax} maxPolar={tempPolarMax} maxHarvest={tempMaxHarvest} onConfirm={onReward} tokenName={tempTokenName} />)
+  const [onPresentHarvest] = useModal(<HarvestModal max={stakedBalance} maxPolar={polarMaxBalance} maxHarvest={tempMaxHarvest} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} />)
 
   return (
     <Flex mb="8px" justifyContent="space-between" alignItems="center">
       <Heading color={rawEarningsBalance === 0 ? 'textDisabled' : 'text'}>{displayBalance}</Heading>
       <BalanceAndCompound>
-        {pid === 2 ? (
-          <Button
-            disabled={rawEarningsBalance === 0 || pendingTx}
-            size="sm"
-            variant="secondary"
-            marginBottom="15px"
-            onClick={async () => {
-              setPendingTx(true)
-              await onStake(rawEarningsBalance.toString())
-              setPendingTx(false)
-            }}
-          >
-            {TranslateString(999, 'Compound')}
-          </Button>
-        ) : null}
         <Button
           disabled={rawEarningsBalance === 0 || pendingTx}
           onClick={onPresentHarvest}
