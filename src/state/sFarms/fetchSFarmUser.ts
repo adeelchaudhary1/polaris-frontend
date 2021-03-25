@@ -78,9 +78,49 @@ export const fetchTotalEarnings = async () => {
       name: 'totalRewards'
     }
   })
-  const rawRewardEarning = await multicall(novapool, calls)
-  const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
-    return new BigNumber(rewardEarningPreview).toJSON()
+  const rawTotalEarning = await multicall(novapool, calls)
+  const parsedRewardEaring = rawTotalEarning.map((totalEarningObj) => {
+    return new BigNumber(totalEarningObj).toJSON()
   })
   return parsedRewardEaring
+}
+
+export const fetchTimeExpire = async () => {
+  const parsedTimeExpires = []
+  for(let k =0; k< sFarmsConfig.length; k++)  {
+    const  farm  = sFarmsConfig[k]
+    const callsForFundingCount = [
+      {
+        address: farm.poolAddress,
+        name: 'fundingCount'
+      }
+    ]
+    // eslint-disable-next-line no-await-in-loop
+    const totalFundingCount = await multicall(novapool, callsForFundingCount)
+
+    const callsForFunding = []
+    for(let i = 0; i <Number(totalFundingCount[0]); i++) {
+      callsForFunding.push({
+        address: farm.poolAddress,
+        name: 'fundings',
+        params: [i],
+      })  
+    }  // end of for loop
+
+    if(callsForFunding.length > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      const allFundingsOfPool = await multicall(novapool, callsForFunding)
+      let expiryTime: number = allFundingsOfPool[0][5].toNumber()
+      for(let j = 0; j < allFundingsOfPool.length; j++) {
+        if(Number(expiryTime) < Number(allFundingsOfPool[j][5].toNumber())) {
+          expiryTime = allFundingsOfPool[j][5].toNumber()
+        }
+      }
+      parsedTimeExpires.push(expiryTime)
+    }  else {
+      parsedTimeExpires.push(0)
+    }
+  } // end of for loop
+
+  return parsedTimeExpires
 }

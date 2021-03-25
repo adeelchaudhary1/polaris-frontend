@@ -10,6 +10,7 @@ import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { QuoteToken } from 'config/constants/types'
 import { useSFarmUser } from 'state/hooks'
 import { getBalanceNumber } from 'utils/formatBalance'
+import moment from 'moment';
 import DetailsSection from './DetailsSection'
 import CardHeading from './CardHeading'
 import CardActionsContainer from './CardActionsContainer'
@@ -124,19 +125,30 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const {totalReward } = useSFarmUser(sFarm.pid)
+  const {totalReward, timeExpiry } = useSFarmUser(sFarm.pid)
 
-  // eslint-disable-next-line no-console
-  console.log("*******", totalReward.toLocaleString())
   const rawTotalReward = getBalanceNumber(totalReward)
   const [showExpandableSection, setShowExpandableSection] = useState(false)
   const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
+  const [timeExpiryState, setTimeExpiryState] = useState("...")
 
   useEffect(() => {
     const tempRawTotalReward = getBalanceNumber(totalReward)
 
     setDisplayTotalReward(tempRawTotalReward.toLocaleString())
-  }, [totalReward])
+
+    if(timeExpiry > 0) {
+      // eslint-disable-next-line no-debugger
+      debugger;
+      const timeDifference  = Math.floor(timeExpiry -  (Date.now() / 1000 ) )
+      if(timeDifference > 0) {
+        const days = Math.floor(timeDifference / (60 * 60 * 24 ) )
+        setTimeExpiryState(`${days} Days`);
+      } else {
+        setTimeExpiryState("Expired");
+      }
+    }
+  }, [totalReward, timeExpiry])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -206,7 +218,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(20001, 'Time Left')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          7 Days
+          {`${timeExpiryState}`}
         </Text>
       </Flex>
       <Flex justifyContent="space-between">

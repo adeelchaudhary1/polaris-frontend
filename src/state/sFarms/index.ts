@@ -8,6 +8,7 @@ import {
   fetchSFarmUserTokenBalances,
   fetchSFarmUserStakedBalances,
   fetchTotalEarnings,
+  fetchTimeExpire,
 } from './fetchSFarmUser'
 import { SFarmsState, SFarm } from '../types'
 
@@ -49,6 +50,7 @@ export const fetchSFarmUserDataAsync = (account) => async (dispatch) => {
   const userStakedBalances = await fetchSFarmUserStakedBalances(account)
   const userFarmEarnings = await fetchSFarmUserEarnings(account)
   const totalEarnings = await fetchTotalEarnings()
+  const timeExpiry = await fetchTimeExpire()
 
   const arrayOfUserDataObjects = userFarmAllowances.map((farmAllowance, index) => {
     return {
@@ -58,6 +60,7 @@ export const fetchSFarmUserDataAsync = (account) => async (dispatch) => {
       tokenBalance: userFarmTokenBalances[index],
       stakedBalance: userStakedBalances[index],
       earnings: userFarmEarnings[index],
+      timeExpiry: timeExpiry[index]
     }
   })
 

@@ -42,7 +42,8 @@ export interface SFarm extends SFarmConfig {
     tokenBalance: BigNumber
     stakedBalance: BigNumber
     earnings: BigNumber,
-    totalReward: BigNumber
+    totalReward: BigNumber,
+    timeExpiry : number
   }
 }
 

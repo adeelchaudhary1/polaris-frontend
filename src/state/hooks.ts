@@ -137,7 +137,8 @@ export const useSFarmUser = (pid) => {
     tokenBalance: farm.userData ? new BigNumber(farm.userData.tokenBalance) : new BigNumber(0),
     stakedBalance: farm.userData ? new BigNumber(farm.userData.stakedBalance) : new BigNumber(0),
     earnings: farm.userData ? new BigNumber(farm.userData.earnings) : new BigNumber(0),
-    totalReward: farm.userData ? new BigNumber(farm.userData.totalReward) : new BigNumber(0)
+    totalReward: farm.userData ? new BigNumber(farm.userData.totalReward) : new BigNumber(0),
+    timeExpiry: farm.userData ? farm.userData.timeExpiry: 0
   }
 }
 
