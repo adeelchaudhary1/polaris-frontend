@@ -85,6 +85,21 @@ export const fetchTotalEarnings = async () => {
   return parsedRewardEaring
 }
 
+export const fetchPolarBonusMultiplier = async () => {
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'gysrBonus',
+      params: ['1000000000000000000'],
+    }
+  })
+  const rawGysrBonus = await multicall(novapool, calls)
+  const parsedRewardEaring = rawGysrBonus.map((rawGysrBonusObj) => {
+    return new BigNumber(rawGysrBonusObj).toJSON()
+  })
+  return parsedRewardEaring
+}
+
 export const fetchTimeExpire = async () => {
   const parsedTimeExpires = []
   for(let k =0; k< sFarmsConfig.length; k++)  {

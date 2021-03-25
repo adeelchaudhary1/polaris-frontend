@@ -125,11 +125,15 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const {totalReward, timeExpiry } = useSFarmUser(sFarm.pid)
+  const {totalReward, timeExpiry, polarBonusMultiplier } = useSFarmUser(sFarm.pid)
 
   const rawTotalReward = getBalanceNumber(totalReward)
+  const bonusMultiplier = getBalanceNumber(polarBonusMultiplier)
+
   const [showExpandableSection, setShowExpandableSection] = useState(false)
   const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
+  const [displayBonusMultiplier, setDisplayBonusMultiplier] = useState(bonusMultiplier.toLocaleString())
+
   const [timeExpiryState, setTimeExpiryState] = useState("...")
 
   useEffect(() => {
@@ -137,6 +141,8 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
 
     setDisplayTotalReward(tempRawTotalReward.toLocaleString())
 
+    const tempBonusMultiplier = getBalanceNumber(polarBonusMultiplier)
+    setDisplayBonusMultiplier(tempBonusMultiplier.toLocaleString())
     if(timeExpiry > 0) {
       // eslint-disable-next-line no-debugger
       debugger;
@@ -148,7 +154,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         setTimeExpiryState("Expired");
       }
     }
-  }, [totalReward, timeExpiry])
+  }, [totalReward, timeExpiry, polarBonusMultiplier])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -224,7 +230,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(20001, 'Current Multiplier')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          1x
+          {displayBonusMultiplier}x
         </Text>
       </Flex>
       <CardActionsContainer sFarm={sFarm} ethereum={ethereum} account={account} />
