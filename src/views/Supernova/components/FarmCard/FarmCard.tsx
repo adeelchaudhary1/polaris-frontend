@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import styled, { keyframes } from 'styled-components'
 import { Flex, Text, Skeleton } from '@pancakeswap-libs/uikit'
@@ -8,6 +8,8 @@ import { provider } from 'web3-core'
 import useI18n from 'hooks/useI18n'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { QuoteToken } from 'config/constants/types'
+import { useSFarmUser } from 'state/hooks'
+import { getBalanceNumber } from 'utils/formatBalance'
 import DetailsSection from './DetailsSection'
 import CardHeading from './CardHeading'
 import CardActionsContainer from './CardActionsContainer'
@@ -122,8 +124,19 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const [showExpandableSection, setShowExpandableSection] = useState(false)
+  const {totalReward } = useSFarmUser(sFarm.pid)
 
+  // eslint-disable-next-line no-console
+  console.log("*******", totalReward.toLocaleString())
+  const rawTotalReward = getBalanceNumber(totalReward)
+  const [showExpandableSection, setShowExpandableSection] = useState(false)
+  const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
+
+  useEffect(() => {
+    const tempRawTotalReward = getBalanceNumber(totalReward)
+
+    setDisplayTotalReward(tempRawTotalReward.toLocaleString())
+  }, [totalReward])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -187,7 +200,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(20001, 'Total Rewards')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          1,000 WBNB
+          {`${displayTotalReward} ${sFarm.rTokenSymbol}`}
         </Text>
       </Flex>
       <Flex justifyContent="space-between">

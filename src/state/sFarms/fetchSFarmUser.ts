@@ -21,6 +21,7 @@ export const fetchSFarmUserAllowances = async (account: string) => {
   
 }
 
+
 export const fetchSFarmUserTokenBalances = async (account: string) => {
   const calls = sFarmsConfig.map((farm) => {
     const lpContractAddress = farm.sLpAddresses[CHAIN_ID]
@@ -65,6 +66,21 @@ export const fetchSFarmUserEarnings = async (account: string) => {
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
     return rewardEarningPreview[0].toString()
+  })
+  return parsedRewardEaring
+}
+
+
+export const fetchTotalEarnings = async () => {
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalRewards'
+    }
+  })
+  const rawRewardEarning = await multicall(novapool, calls)
+  const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
+    return new BigNumber(rewardEarningPreview).toJSON()
   })
   return parsedRewardEaring
 }

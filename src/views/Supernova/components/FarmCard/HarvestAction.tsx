@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { fetchPolarBalance } from 'state/sFarms/fetchSFarms'
 import sfarms from 'config/constants/sfarms'
 import { useSuperNovaUnstake } from 'hooks/useUnstake'
-import useStake from '../../../../hooks/useStake'
 import HarvestModal from '../HarvestModal'
 
 interface FarmCardActionsProps {
@@ -31,7 +30,6 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
   const [polarMaxBalance, setPolarMaxBalance] = useState(new BigNumber(0))
 
   const { onUnstake } = useSuperNovaUnstake(sFarm.poolAddress)
-  const { onStake } = useStake(pid)
 
   const rawEarningsBalance = getBalanceNumber(earnings)
   const displayBalance = rawEarningsBalance.toLocaleString()
@@ -39,8 +37,6 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
   useEffect(() => {
     async function fetchBalance () {
       const tempPolarMaxBalance = await fetchPolarBalance(account)
-      // eslint-disable-next-line no-debugger
-      debugger;
       setPolarMaxBalance(new BigNumber(tempPolarMaxBalance))
     }
     if(account) {

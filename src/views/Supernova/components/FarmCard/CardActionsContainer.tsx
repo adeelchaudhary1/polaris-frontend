@@ -9,7 +9,6 @@ import { useSFarmFromPid, useSFarmUser } from 'state/hooks'
 import useI18n from 'hooks/useI18n'
 import UnlockButton from 'components/UnlockButton'
 import {  useNovaApprove } from 'hooks/useApprove'
-import { fetchSFarmUserAllowances } from 'state/sFarms/fetchSFarmUser'
 import StakeAction from './StakeAction'
 import HarvestAction from './HarvestAction'
 
@@ -30,7 +29,7 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   const TranslateString = useI18n()
   const [requestedApproval, setRequestedApproval] = useState(false)
   const { pid, sLpAddresses: lpAddresses, rTokenAddresses: tokenAddresses, depositFeeBP } = useSFarmFromPid(sFarm.pid)
-  const { allowance, tokenBalance, stakedBalance, earnings } = useSFarmUser(pid)
+  const { allowance, tokenBalance, stakedBalance, earnings, totalReward } = useSFarmUser(pid)
   const lpAddress = lpAddresses[process.env.REACT_APP_CHAIN_ID]
   const tokenAddress = tokenAddresses[process.env.REACT_APP_CHAIN_ID]
   const lpName = sFarm.sLpSymbol.toUpperCase()
