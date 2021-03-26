@@ -1,27 +1,58 @@
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Modal } from '@pancakeswap-libs/uikit'
 import ModalActions from 'components/ModalActions'
 import TokenInput from 'components/TokenInput'
 import useI18n from 'hooks/useI18n'
-import { getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance, getPercentNumber } from 'utils/formatBalance'
+import { useSFarmUser } from 'state/hooks'
+import { SFarm } from 'state/types'
+import { useWallet } from '@binance-chain/bsc-use-wallet'
+import { fetchSFarmUserHarvestEarning } from 'state/sFarms/fetchSFarmUser'
 
 interface HarvestModalProps {
   max: BigNumber
   maxPolar: BigNumber
-  maxHarvest: BigNumber
   onConfirm: (amount: string, polar: string) => void
   onDismiss?: () => void
-  tokenName?: string
+  tokenName?: string,
+  sFarm: SFarm
 }
 
-const HarvestModal: React.FC<HarvestModalProps> = ({ onConfirm, onDismiss, max, maxPolar, maxHarvest, tokenName = '' }) => {
+const HarvestModal: React.FC<HarvestModalProps> = ({ sFarm, onConfirm, onDismiss, max, maxPolar, tokenName = '' }) => {
+  
+  const { earningMultiplier } = useSFarmUser(sFarm.pid)
+  const { account } = useWallet()
   const [val, setVal] = useState('')
   const [valPolar, setValPolar] = useState('0')
   const [estimatedHarvestAmount, setEstimatedHarvestAmount] = useState('')
   const [bonusMultiplier, setBonusMultiplier] = useState(1)
   const [pendingTx, setPendingTx] = useState(false)
   const TranslateString = useI18n()
+
+  
+  const calculateEstimatedHarvest = useCallback(async (unStakingAmount: number, polarAmount= 0) => {
+    try {
+      const unStakingAmountInBigNumber = Math.floor(unStakingAmount * 10**18).toString()
+      const polarAmountInBigNumber = Math.floor(polarAmount * 10**18).toString()
+
+      const harvestResult = await fetchSFarmUserHarvestEarning(account, unStakingAmountInBigNumber, polarAmountInBigNumber,  sFarm.poolAddress)
+      
+      const maxHarvestCalculated = unStakingAmount + Number(getFullDisplayBalance(harvestResult.earning))
+      // eslint-disable-next-line no-debugger
+      debugger;
+      setEstimatedHarvestAmount(maxHarvestCalculated.toFixed(4)) 
+
+    } catch (Error) {
+      // eslint-disable-next-line no-console
+      console.log(Error)
+    }
+  },[account, sFarm.poolAddress])
+  useEffect(() => {
+    const tempBonusMultiplier = getPercentNumber(earningMultiplier)
+    setBonusMultiplier(Number(tempBonusMultiplier))
+  }, [earningMultiplier])
+
   
   const fullBalance = useMemo(() => {
     return getFullDisplayBalance(max)
@@ -34,30 +65,36 @@ const HarvestModal: React.FC<HarvestModalProps> = ({ onConfirm, onDismiss, max, 
   const handleChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setVal(e.currentTarget.value)
-      setEstimatedHarvestAmount(maxHarvest.times(bonusMultiplier).times(new BigNumber(Number(e.currentTarget.value)).div(max)).toFormat(2)) 
+      calculateEstimatedHarvest(Number(e.currentTarget.value), Number(valPolar))
+      // setEstimatedHarvestAmount(maxHarvest.times(bonusMultiplier).times(new BigNumber(Number(e.currentTarget.value)).div(max)).toFormat(2)) 
     },
-    [setVal, setEstimatedHarvestAmount, max, maxHarvest, bonusMultiplier],
+    [calculateEstimatedHarvest, valPolar],
   )
 
   const handlePolarChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setValPolar(e.currentTarget.value)
       setBonusMultiplier(1 + Number(e.currentTarget.value) / 100)
-      setEstimatedHarvestAmount(maxHarvest.times(1 + Number(e.currentTarget.value) / 100).times(new BigNumber(Number(val)).div(max)).toFormat(2)) 
+      calculateEstimatedHarvest(Number(val), Number(e.currentTarget.value))
+
+      // setEstimatedHarvestAmount(maxHarvest.times(1 + Number(e.currentTarget.value) / 100).times(new BigNumber(Number(val)).div(max)).toFormat(2)) 
     },
-    [setValPolar, setBonusMultiplier, setEstimatedHarvestAmount, max, maxHarvest, val],
+    [calculateEstimatedHarvest, val],
   )
 
   const handleSelectMax = useCallback(() => {
     setVal(fullBalance)
-    setEstimatedHarvestAmount(maxHarvest.times(bonusMultiplier).div(10**18).toFormat(2)) 
-  }, [fullBalance, setVal, setEstimatedHarvestAmount, maxHarvest, bonusMultiplier])
+    calculateEstimatedHarvest(Number(fullBalance), Number(valPolar))
+    // setEstimatedHarvestAmount(maxHarvest.times(bonusMultiplier).div(10**18).toFormat(2)) 
+  }, [fullBalance, calculateEstimatedHarvest, valPolar])
 
   const handleSelectPolarMax = useCallback(() => {
     setValPolar(fullPolarBalance)
     setBonusMultiplier(1 + Number(fullPolarBalance) / 100)
-    setEstimatedHarvestAmount(maxHarvest.times(1 + Number(fullPolarBalance) / 100).div(10**18).toFormat(2)) 
-  }, [fullPolarBalance, setValPolar, setBonusMultiplier, setEstimatedHarvestAmount, maxHarvest])
+    calculateEstimatedHarvest(Number(val), Number(fullPolarBalance))
+
+    // setEstimatedHarvestAmount(maxHarvest.times(1 + Number(fullPolarBalance) / 100).div(10**18).toFormat(2)) 
+  }, [fullPolarBalance, calculateEstimatedHarvest, val])
 
   return (
     <Modal title="Harvest With POLAR To Multiply Your Rewards" onDismiss={onDismiss}>

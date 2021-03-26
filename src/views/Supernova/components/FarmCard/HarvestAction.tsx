@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import { fetchPolarBalance } from 'state/sFarms/fetchSFarms'
 import sfarms from 'config/constants/sfarms'
 import { useSuperNovaUnstake } from 'hooks/useUnstake'
+import { fetchSFarmUserHarvestEarning } from 'state/sFarms/fetchSFarmUser'
 import HarvestModal from '../HarvestModal'
 
 interface FarmCardActionsProps {
@@ -34,6 +35,7 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
   const rawEarningsBalance = getBalanceNumber(earnings)
   const displayBalance = rawEarningsBalance.toLocaleString()
 
+
   useEffect(() => {
     async function fetchBalance () {
       const tempPolarMaxBalance = await fetchPolarBalance(account)
@@ -43,9 +45,8 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
       fetchBalance()
     }
   }, [account])
-  const tempMaxHarvest = new BigNumber(180 * 10 ** 18)
   
-  const [onPresentHarvest] = useModal(<HarvestModal max={stakedBalance} maxPolar={polarMaxBalance} maxHarvest={tempMaxHarvest} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} />)
+  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} />)
 
   return (
     <Flex mb="8px" justifyContent="space-between" alignItems="center">
