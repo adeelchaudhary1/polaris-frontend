@@ -144,8 +144,6 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
     const tempBonusMultiplier = getBalanceNumber(polarBonusMultiplier)
     setDisplayBonusMultiplier(tempBonusMultiplier.toLocaleString())
     if(timeExpiry > 0) {
-      // eslint-disable-next-line no-debugger
-      debugger;
       const timeDifference  = Math.floor(timeExpiry -  (Date.now() / 1000 ) )
       if(timeDifference > 0) {
         const days = Math.floor(timeDifference / (60 * 60 * 24 ) )

@@ -55,14 +55,28 @@ export const fetchSFarmUserStakedBalances = async (account: string) => {
   return parsedLpAllowances
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchSFarmUserEarnings = async (account: string) => {
+
+  const callsForStaking = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalStakedFor',
+      params: [account],
+    }
+  })
+
+  const rawTotalStakes = await multicall(novapool, callsForStaking)
+
   const calls = sFarmsConfig.map((farm) => {
     return {
       address: farm.poolAddress,
-      name: 'preview'
+      name: 'preview',
+      params: [account, rawTotalStakes[0][0], 0],
+
     }
   })
+  // eslint-disable-next-line no-debugger
+  debugger;
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
     return rewardEarningPreview[0].toString()
@@ -113,28 +127,19 @@ export const fetchTimeExpire = async () => {
     // eslint-disable-next-line no-await-in-loop
     const totalFundingCount = await multicall(novapool, callsForFundingCount)
 
-    const callsForFunding = []
-    for(let i = 0; i <Number(totalFundingCount[0]); i++) {
-      callsForFunding.push({
+    const callsForFunding = [
+      {
         address: farm.poolAddress,
         name: 'fundings',
-        params: [i],
-      })  
-    }  // end of for loop
-
-    if(callsForFunding.length > 0) {
-      // eslint-disable-next-line no-await-in-loop
-      const allFundingsOfPool = await multicall(novapool, callsForFunding)
-      let expiryTime: number = allFundingsOfPool[0][5].toNumber()
-      for(let j = 0; j < allFundingsOfPool.length; j++) {
-        if(Number(expiryTime) < Number(allFundingsOfPool[j][5].toNumber())) {
-          expiryTime = allFundingsOfPool[j][5].toNumber()
-        }
+        params: [totalFundingCount[0][0].toNumber() - 1],
       }
-      parsedTimeExpires.push(expiryTime)
-    }  else {
-      parsedTimeExpires.push(0)
-    }
+    ]
+
+    // eslint-disable-next-line no-await-in-loop
+    const allFundingsOfPool = await multicall(novapool, callsForFunding)
+    const expiryTime: number = allFundingsOfPool[0][5].toNumber()
+    parsedTimeExpires.push(expiryTime)
+
   } // end of for loop
 
   return parsedTimeExpires
