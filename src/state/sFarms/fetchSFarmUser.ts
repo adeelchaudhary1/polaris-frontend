@@ -67,6 +67,8 @@ export const fetchSFarmUserEarnings = async (account: string) => {
 
   const rawTotalStakes = await multicall(novapool, callsForStaking)
 
+  // eslint-disable-next-line no-debugger
+  debugger;
   const calls = sFarmsConfig.map((farm) => {
     return {
       address: farm.poolAddress,
@@ -75,11 +77,12 @@ export const fetchSFarmUserEarnings = async (account: string) => {
 
     }
   })
-  // eslint-disable-next-line no-debugger
-  debugger;
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
-    return rewardEarningPreview[0].toString()
+    return {
+      earning : rewardEarningPreview[0].toString(),
+      multiplier : rewardEarningPreview[1].toString(),
+    }
   })
   return parsedRewardEaring
 }

@@ -44,7 +44,8 @@ export interface SFarm extends SFarmConfig {
     earnings: BigNumber,
     totalReward: BigNumber,
     timeExpiry : number,
-    polarBonusMultiplier: BigNumber
+    polarBonusMultiplier: BigNumber,
+    earningMultiplier: BigNumber,
   }
 }
 

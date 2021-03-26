@@ -9,7 +9,7 @@ import useI18n from 'hooks/useI18n'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { QuoteToken } from 'config/constants/types'
 import { useSFarmUser } from 'state/hooks'
-import { getBalanceNumber } from 'utils/formatBalance'
+import { getBalanceNumber, getPercentNumber } from 'utils/formatBalance'
 import moment from 'moment';
 import DetailsSection from './DetailsSection'
 import CardHeading from './CardHeading'
@@ -125,14 +125,15 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const {totalReward, timeExpiry, polarBonusMultiplier } = useSFarmUser(sFarm.pid)
+  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier } = useSFarmUser(sFarm.pid)
 
   const rawTotalReward = getBalanceNumber(totalReward)
-  const bonusMultiplier = getBalanceNumber(polarBonusMultiplier)
+  const bonusMultiplier = getPercentNumber(earningMultiplier)
 
   const [showExpandableSection, setShowExpandableSection] = useState(false)
   const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
   const [displayBonusMultiplier, setDisplayBonusMultiplier] = useState(bonusMultiplier.toLocaleString())
+  const [maxBonusMultiplier, setMaxBonusMultiplier] = useState(new BigNumber(1).toLocaleString())
 
   const [timeExpiryState, setTimeExpiryState] = useState("...")
 
@@ -141,8 +142,11 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
 
     setDisplayTotalReward(tempRawTotalReward.toLocaleString())
 
-    const tempBonusMultiplier = getBalanceNumber(polarBonusMultiplier)
+    const tempBonusMultiplier = getPercentNumber(earningMultiplier)
     setDisplayBonusMultiplier(tempBonusMultiplier.toLocaleString())
+
+    const tempMaxBonusMultiplier = getPercentNumber(polarBonusMultiplier)
+    setMaxBonusMultiplier(tempMaxBonusMultiplier.toLocaleString())
     if(timeExpiry > 0) {
       const timeDifference  = Math.floor(timeExpiry -  (Date.now() / 1000 ) )
       if(timeDifference > 0) {
@@ -152,7 +156,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         setTimeExpiryState("Expired");
       }
     }
-  }, [totalReward, timeExpiry, polarBonusMultiplier])
+  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -181,7 +185,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         stakeLabel={stakeLabel}
         // multiplier={sFarm.multiplier}
         // depositFee={sFarm.depositFeeBP}
-        multiplier="40x"
+        multiplier={`${maxBonusMultiplier}x`}
         depositFee={0}
         tokenSymbol={sFarm.sTokenSymbol}
       />
