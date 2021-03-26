@@ -38,7 +38,7 @@ const HarvestModal: React.FC<HarvestModalProps> = ({ sFarm, onConfirm, onDismiss
 
       const harvestResult = await fetchSFarmUserHarvestEarning(account, unStakingAmountInBigNumber, polarAmountInBigNumber,  sFarm.poolAddress)
       
-      const maxHarvestCalculated = unStakingAmount + (Number(harvestResult[0].earning) / 10**18)
+      const maxHarvestCalculated = (Number(harvestResult[0].earning) / 10**18)
 
       setEstimatedHarvestAmount(maxHarvestCalculated.toFixed(4)) 
 

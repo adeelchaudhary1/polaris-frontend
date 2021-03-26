@@ -55,6 +55,8 @@ export const fetchSFarmUserStakedBalances = async (account: string) => {
   return parsedLpAllowances
 }
 
+
+
 export const fetchSFarmUserEarnings = async (account: string) => {
 
   const callsForStaking = sFarmsConfig.map((farm) => {
@@ -92,6 +94,20 @@ export const fetchTotalEarnings = async () => {
     return {
       address: farm.poolAddress,
       name: 'totalRewards'
+    }
+  })
+  const rawTotalEarning = await multicall(novapool, calls)
+  const parsedRewardEaring = rawTotalEarning.map((totalEarningObj) => {
+    return new BigNumber(totalEarningObj).toJSON()
+  })
+  return parsedRewardEaring
+}
+
+export const fetchTotalLocked = async () => {
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalLocked'
     }
   })
   const rawTotalEarning = await multicall(novapool, calls)

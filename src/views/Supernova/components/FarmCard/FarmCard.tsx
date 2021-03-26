@@ -125,7 +125,7 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier } = useSFarmUser(sFarm.pid)
+  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked } = useSFarmUser(sFarm.pid)
 
   const rawTotalReward = getBalanceNumber(totalReward)
   const bonusMultiplier = getPercentNumber(earningMultiplier)
@@ -134,12 +134,13 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
   const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
   const [displayBonusMultiplier, setDisplayBonusMultiplier] = useState(bonusMultiplier.toLocaleString())
   const [maxBonusMultiplier, setMaxBonusMultiplier] = useState(new BigNumber(1).toLocaleString())
+  const [farmAPY, setFarmAPY] = useState("...")
 
   const [timeExpiryState, setTimeExpiryState] = useState("...")
 
   useEffect(() => {
     const tempRawTotalReward = getBalanceNumber(totalReward)
-
+    const tempRawTotalLocked = getBalanceNumber(totalLocked)
     setDisplayTotalReward(tempRawTotalReward.toLocaleString())
 
     const tempBonusMultiplier = getPercentNumber(earningMultiplier)
@@ -152,11 +153,21 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       if(timeDifference > 0) {
         const days = Math.floor(timeDifference / (60 * 60 * 24 ) )
         setTimeExpiryState(`${days} Days`);
+
+        const tempFormAPY = (tempRawTotalReward / tempRawTotalLocked ) *  (365 / days)
+        // const farmAPY = new BigNumber(7.35).toNumber().toLocaleString(undefined, {
+        //   minimumFractionDigits: 2,
+        //   maximumFractionDigits: 2,
+        // })
+        setFarmAPY(tempFormAPY.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }))
       } else {
         setTimeExpiryState("Expired");
       }
     }
-  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier])
+  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -169,10 +180,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
 
   const stakeLabel = sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
-  const farmAPY = new BigNumber(7.35).toNumber().toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
+
     // sFarm.apy &&
     // sFarm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
     //   minimumFractionDigits: 2,

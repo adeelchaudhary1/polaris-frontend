@@ -140,7 +140,8 @@ export const useSFarmUser = (pid) => {
     totalReward: farm.userData ? new BigNumber(farm.userData.totalReward) : new BigNumber(0),
     timeExpiry: farm.userData ? farm.userData.timeExpiry: 0,
     polarBonusMultiplier: farm.userData ? farm.userData.polarBonusMultiplier: new BigNumber(1),
-    earningMultiplier: farm.userData ? farm.userData.earningMultiplier: new BigNumber(1)
+    earningMultiplier: farm.userData ? farm.userData.earningMultiplier: new BigNumber(1),
+    totalLocked: farm.userData ? farm.userData.totalLocked: new BigNumber(1)
   }
 }
 

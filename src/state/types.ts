@@ -46,6 +46,7 @@ export interface SFarm extends SFarmConfig {
     timeExpiry : number,
     polarBonusMultiplier: BigNumber,
     earningMultiplier: BigNumber,
+    totalLocked: BigNumber,
   }
 }
 
