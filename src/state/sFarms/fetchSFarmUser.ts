@@ -121,7 +121,7 @@ export const fetchPolarBonusMultiplier = async () => {
   const calls = sFarmsConfig.map((farm) => {
     return {
       address: farm.poolAddress,
-      name: 'gysrBonus',
+      name: 'polarBonus',
       params: ['1000000000000000000'],
     }
   })

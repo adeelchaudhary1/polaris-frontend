@@ -28,44 +28,12 @@
 		},
 		{
 		  "internalType": "address",
-		  "name": "gysr_",
+		  "name": "polar_",
 		  "type": "address"
 		}
 	  ],
 	  "stateMutability": "nonpayable",
 	  "type": "constructor"
-	},
-	{
-	  "anonymous": false,
-	  "inputs": [
-		{
-		  "indexed": true,
-		  "internalType": "address",
-		  "name": "user",
-		  "type": "address"
-		},
-		{
-		  "indexed": false,
-		  "internalType": "uint256",
-		  "name": "amount",
-		  "type": "uint256"
-		}
-	  ],
-	  "name": "GysrSpent",
-	  "type": "event"
-	},
-	{
-	  "anonymous": false,
-	  "inputs": [
-		{
-		  "indexed": false,
-		  "internalType": "uint256",
-		  "name": "amount",
-		  "type": "uint256"
-		}
-	  ],
-	  "name": "GysrWithdrawn",
-	  "type": "event"
 	},
 	{
 	  "anonymous": false,
@@ -84,6 +52,38 @@
 		}
 	  ],
 	  "name": "OwnershipTransferred",
+	  "type": "event"
+	},
+	{
+	  "anonymous": false,
+	  "inputs": [
+		{
+		  "indexed": true,
+		  "internalType": "address",
+		  "name": "user",
+		  "type": "address"
+		},
+		{
+		  "indexed": false,
+		  "internalType": "uint256",
+		  "name": "amount",
+		  "type": "uint256"
+		}
+	  ],
+	  "name": "PolarSpent",
+	  "type": "event"
+	},
+	{
+	  "anonymous": false,
+	  "inputs": [
+		{
+		  "indexed": false,
+		  "internalType": "uint256",
+		  "name": "amount",
+		  "type": "uint256"
+		}
+	  ],
+	  "name": "PolarWithdrawn",
 	  "type": "event"
 	},
 	{
@@ -431,25 +431,6 @@
 	  "type": "function"
 	},
 	{
-	  "inputs": [
-		{
-		  "internalType": "uint256",
-		  "name": "gysr",
-		  "type": "uint256"
-		}
-	  ],
-	  "name": "gysrBonus",
-	  "outputs": [
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		}
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
 	  "inputs": [],
 	  "name": "lastUpdated",
 	  "outputs": [
@@ -478,6 +459,25 @@
 	{
 	  "inputs": [
 		{
+		  "internalType": "uint256",
+		  "name": "polar",
+		  "type": "uint256"
+		}
+	  ],
+	  "name": "polarBonus",
+	  "outputs": [
+		{
+		  "internalType": "uint256",
+		  "name": "",
+		  "type": "uint256"
+		}
+	  ],
+	  "stateMutability": "view",
+	  "type": "function"
+	},
+	{
+	  "inputs": [
+		{
 		  "internalType": "address",
 		  "name": "addr",
 		  "type": "address"
@@ -489,7 +489,7 @@
 		},
 		{
 		  "internalType": "uint256",
-		  "name": "gysr",
+		  "name": "polar",
 		  "type": "uint256"
 		}
 	  ],
@@ -672,19 +672,6 @@
 	},
 	{
 	  "inputs": [],
-	  "name": "totalGysrRewards",
-	  "outputs": [
-		{
-		  "internalType": "uint256",
-		  "name": "",
-		  "type": "uint256"
-		}
-	  ],
-	  "stateMutability": "view",
-	  "type": "function"
-	},
-	{
-	  "inputs": [],
 	  "name": "totalLocked",
 	  "outputs": [
 		{
@@ -699,6 +686,19 @@
 	{
 	  "inputs": [],
 	  "name": "totalLockedShares",
+	  "outputs": [
+		{
+		  "internalType": "uint256",
+		  "name": "",
+		  "type": "uint256"
+		}
+	  ],
+	  "stateMutability": "view",
+	  "type": "function"
+	},
+	{
+	  "inputs": [],
+	  "name": "totalPolarRewards",
 	  "outputs": [
 		{
 		  "internalType": "uint256",
@@ -833,7 +833,7 @@
 		},
 		{
 		  "internalType": "uint256",
-		  "name": "gysr",
+		  "name": "polar",
 		  "type": "uint256"
 		},
 		{
