@@ -90,16 +90,31 @@ export const fetchSFarmUserEarnings = async (account: string) => {
 
 
 export const fetchTotalEarnings = async () => {
-  const calls = sFarmsConfig.map((farm) => {
+  const callsForTotalLocked = sFarmsConfig.map((farm) => {
     return {
       address: farm.poolAddress,
-      name: 'totalRewards'
+      name: 'totalLocked'
     }
   })
-  const rawTotalEarning = await multicall(novapool, calls)
-  const parsedRewardEaring = rawTotalEarning.map((totalEarningObj) => {
-    return new BigNumber(totalEarningObj).toJSON()
+
+  const callsForTotalUnlocked = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalUnlocked'
+    }
   })
+
+  const rawTotalLocked = await multicall(novapool, callsForTotalLocked)
+  const rawTotalUnLocked = await multicall(novapool, callsForTotalUnlocked)
+
+  const parsedRewardEaring = []
+  for(let i = 0; i < rawTotalLocked.length; i++) {
+    const bigNumberTotalLocked = new BigNumber(rawTotalLocked[i])
+    const bigNumberTotalUnLocked = new BigNumber(rawTotalUnLocked[i])
+
+    parsedRewardEaring.push(bigNumberTotalLocked.plus(bigNumberTotalUnLocked))
+  }
+
   return parsedRewardEaring
 }
 
