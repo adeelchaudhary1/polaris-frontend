@@ -21,6 +21,17 @@ export const fetchSFarmUserAllowances = async (account: string) => {
   
 }
 
+export const fetchUnlockFundInSec = async (timestamp: number) => {
+  const calls = sFarmsConfig.map((farm) => {
+    return { address: farm.poolAddress, name: 'unlockFundInSec', params: [timestamp] }
+  })
+
+  const rawFundings = await multicall(novapool, calls)
+  const parsedFundings = rawFundings.map((unlockFundInSec) => {
+    return new BigNumber(unlockFundInSec).toJSON()
+  })
+  return parsedFundings
+}
 
 export const fetchSFarmUserTokenBalances = async (account: string) => {
   const calls = sFarmsConfig.map((farm) => {

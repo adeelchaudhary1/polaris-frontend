@@ -47,6 +47,7 @@ export interface SFarm extends SFarmConfig {
     polarBonusMultiplier: BigNumber,
     earningMultiplier: BigNumber,
     totalLocked: BigNumber,
+    unlockFundsInSec: BigNumber,
   }
 }
 

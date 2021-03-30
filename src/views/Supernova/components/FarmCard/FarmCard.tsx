@@ -125,49 +125,29 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked } = useSFarmUser(sFarm.pid)
-
-  const rawTotalReward = getBalanceNumber(totalReward)
-  const bonusMultiplier = getPercentNumber(earningMultiplier)
+  
+  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked, unlockFundsInSec } = useSFarmUser(sFarm.pid)
 
   const [showExpandableSection, setShowExpandableSection] = useState(false)
-  const [displayTotalReward, setDisplayTotalReward] = useState(rawTotalReward.toLocaleString())
-  const [displayBonusMultiplier, setDisplayBonusMultiplier] = useState(bonusMultiplier.toLocaleString())
-  const [maxBonusMultiplier, setMaxBonusMultiplier] = useState(new BigNumber(1).toLocaleString())
   const [farmAPY, setFarmAPY] = useState("...")
 
   const [timeExpiryState, setTimeExpiryState] = useState("...")
-
   useEffect(() => {
-    const tempRawTotalReward = getBalanceNumber(totalReward)
-    const tempRawTotalLocked = getBalanceNumber(totalLocked)
-    setDisplayTotalReward(tempRawTotalReward.toLocaleString())
+    const secondsInYear = new BigNumber(31536000)
+    if(totalLocked) {
+      setFarmAPY(secondsInYear.times(unlockFundsInSec).div(10**18).times(bnbPrice).div(totalLocked).toFormat(2))
+    }
 
-    const tempBonusMultiplier = getPercentNumber(earningMultiplier)
-    setDisplayBonusMultiplier(tempBonusMultiplier.toLocaleString())
-
-    const tempMaxBonusMultiplier = getPercentNumber(polarBonusMultiplier)
-    setMaxBonusMultiplier(tempMaxBonusMultiplier.toLocaleString())
     if(timeExpiry > 0) {
       const timeDifference  = Math.floor(timeExpiry -  (Date.now() / 1000 ) )
       if(timeDifference > 0) {
         const days = Math.floor(timeDifference / (60 * 60 * 24 ) )
         setTimeExpiryState(`${days} Days`);
-
-        const tempFormAPY = (tempRawTotalReward / tempRawTotalLocked ) *  (365 / days)
-        // const farmAPY = new BigNumber(7.35).toNumber().toLocaleString(undefined, {
-        //   minimumFractionDigits: 2,
-        //   maximumFractionDigits: 2,
-        // })
-        setFarmAPY(tempFormAPY.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }))
       } else {
         setTimeExpiryState("Expired");
       }
     }
-  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked])
+  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked, unlockFundsInSec, bnbPrice])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
@@ -193,7 +173,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         stakeLabel={stakeLabel}
         // multiplier={sFarm.multiplier}
         // depositFee={sFarm.depositFeeBP}
-        multiplier={`${maxBonusMultiplier}x`}
+        multiplier={`${getPercentNumber(polarBonusMultiplier)}x`}
         depositFee={0}
         tokenSymbol={sFarm.sTokenSymbol}
       />
@@ -228,7 +208,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(20001, 'Total Rewards')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          {`${displayTotalReward} ${sFarm.rTokenSymbol}`}
+          {`${totalReward.div(10 ** 18).toFormat(2)} ${sFarm.rTokenSymbol}`}
         </Text>
       </Flex>
       <Flex justifyContent="space-between">
@@ -240,7 +220,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
       <Flex justifyContent="space-between">
         <Text color="#ABABAB">{TranslateString(20001, 'Current Multiplier')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          {displayBonusMultiplier}x
+          {getPercentNumber(earningMultiplier)}x
         </Text>
       </Flex>
       <CardActionsContainer sFarm={sFarm} ethereum={ethereum} account={account} />
