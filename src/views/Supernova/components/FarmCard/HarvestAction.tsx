@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { fetchPolarBalance } from 'state/sFarms/fetchSFarms'
 import sfarms from 'config/constants/sfarms'
 import { useSuperNovaUnstake } from 'hooks/useUnstake'
-import { fetchSFarmUserHarvestEarning } from 'state/sFarms/fetchSFarmUser'
 import HarvestModal from '../HarvestModal'
 
 interface FarmCardActionsProps {
