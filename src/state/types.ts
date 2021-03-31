@@ -30,24 +30,24 @@ export interface Pool extends PoolConfig {
 }
 
 export interface SFarm extends SFarmConfig {
-  tokenAmount?: BigNumber
-  // quoteTokenAmount?: BigNumber
-  lpTotalInQuoteToken?: BigNumber
-  tokenPriceVsQuote?: BigNumber
-  poolWeight?: number
+  sTokenPriceVsQuote?: BigNumber
+  sLpTokenPriceVsQuote?: BigNumber
+  rTokenPriceVsQuote?: BigNumber
+  rLpTokenPriceVsQuote?: BigNumber
   depositFeeBP?: number
-  polarPerBlock?: number
     userData?: {
     allowance: BigNumber
+    polarAllowance: BigNumber
     tokenBalance: BigNumber
     stakedBalance: BigNumber
-    earnings: BigNumber,
-    totalReward: BigNumber,
-    timeExpiry : number,
-    polarBonusMultiplier: BigNumber,
-    earningMultiplier: BigNumber,
-    totalLocked: BigNumber,
-    unlockFundsInSec: BigNumber,
+    totalStakedAmount: BigNumber
+    earnings: BigNumber
+    totalReward: BigNumber
+    timeExpiry : number
+    polarBonusMultiplier: BigNumber
+    earningMultiplier: BigNumber
+    totalLocked: BigNumber
+    unlockFundsInSec: BigNumber
   }
 }
 

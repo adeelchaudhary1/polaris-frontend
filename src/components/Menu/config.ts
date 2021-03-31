@@ -16,7 +16,7 @@ const config: MenuEntry[] = [
       },
       {
         label: 'Liquidity',
-        href: 'https://exchange.polarisdefi.io/#/add/0xe9e7cea3dedca5984780bafc599bd69add087d56/0x1C545E9943CFd1b41E60a7917465911fa00Fc28C',
+        href: 'https://exchange.polarisdefi.io/#/add/0xe9e7cea3dedca5984780bafc599bd69add087d56/0x3a5325f0e5ee4da06a285e988f052d4e45aa64b4',
       },
     ],
   },
@@ -28,14 +28,18 @@ const config: MenuEntry[] = [
   {
     label: 'Minor Pools',
     icon: 'LaunchIcon',
-    href: '/nests',
+    href: '/minor',
   },
   {
-    label: 'Supernovas (Coming soon)',
+    label: 'Supernovas',
     icon: 'GeyserIcon',
     href: '/supernova',
   },
-
+  {
+    label: 'Certik Audit',
+    icon: 'AuditIcon',
+    href: 'https://www.certik.org/projects/polarisdefi',
+  },
   // {
   //   label: 'Pools',
   //   icon: 'PoolIcon',
@@ -69,7 +73,7 @@ const config: MenuEntry[] = [
       },
       {
         label: 'BSCScan',
-        href: 'https://bscscan.com/token/0x1C545E9943CFd1b41E60a7917465911fa00Fc28C',
+        href: 'https://bscscan.com/token/0x3a5325f0e5ee4da06a285e988f052d4e45aa64b4',
       },
     ],
   },

@@ -53,7 +53,7 @@ const App: React.FC = () => {
               <Route path="/farms">
                 <Farms majorMode/>
               </Route>
-              <Route path="/nests">
+              <Route path="/minor">
                 <Farms />
               </Route>
               <Route path="/supernova">

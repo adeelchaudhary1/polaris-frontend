@@ -7,12 +7,12 @@ const sfarms: SFarmConfig[] = [
     sLpSymbol: 'POLAR-BNB LP',
     sLpAddresses: {
       97: '',
-      56: '0x6aab392d709e7e9a43009ff06fa2e5c33372b07d',
+      56: '0x22ec5e9897a2d6b00fc91936383cc27ac51aba22',
     },
     sTokenSymbol: 'POLAR',
     sTokenAddresses: {
       97: '',
-      56: '0x1C545E9943CFd1b41E60a7917465911fa00Fc28C',
+      56: '0x3a5325f0e5ee4da06a285e988f052d4e45aa64b4',
     },
     sQuoteTokenSymbol: QuoteToken.BNB,
     sQuoteTokenAdresses: contracts.wbnb,

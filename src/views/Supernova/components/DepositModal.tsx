@@ -1,12 +1,15 @@
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
+import { SFarm } from 'state/types'
 import { Button, Modal } from '@pancakeswap-libs/uikit'
 import ModalActions from 'components/ModalActions'
 import TokenInput from 'components/TokenInput'
 import useI18n from 'hooks/useI18n'
 import { getFullDisplayBalance } from 'utils/formatBalance'
+import { useSFarmUser, useSFarmFromPid, usePriceBnbBusd } from 'state/hooks'
 
 interface DepositModalProps {
+  pid: number,
   max: BigNumber
   onConfirm: (amount: string) => void
   onDismiss?: () => void
@@ -14,7 +17,35 @@ interface DepositModalProps {
   depositFeeBP?: number
 }
 
-const DepositModal: React.FC<DepositModalProps> = ({ max, onConfirm, onDismiss, tokenName = '', depositFeeBP = 0 }) => {
+const DepositModal: React.FC<DepositModalProps> = ({ pid, max, onConfirm, onDismiss, tokenName = '', depositFeeBP = 0 }) => {
+  const sFarm = useSFarmFromPid(pid)
+  const { totalStakedAmount, unlockFundsInSec } = useSFarmUser(pid)
+  
+  const [farmDPY, setFarmDPY] = useState("...")
+  const bnbPrice = usePriceBnbBusd()
+
+  useEffect(() => {
+    const secondsInDay = new BigNumber(86400)
+    if (sFarm && totalStakedAmount.isGreaterThan(0)) {
+      let rTokenPrice = sFarm.isRewardSingleToken ? new BigNumber(sFarm.rTokenPriceVsQuote) : new BigNumber(sFarm.rLpTokenPriceVsQuote);
+      if (sFarm.rQuoteTokenSymbol === 'BNB')
+        rTokenPrice = rTokenPrice.times(bnbPrice)
+
+      let sTokenPrice = sFarm.isStakeSingleToken ? new BigNumber(sFarm.sTokenPriceVsQuote) : new BigNumber(sFarm.sLpTokenPriceVsQuote);
+      if (sFarm.sQuoteTokenSymbol === 'BNB')
+        sTokenPrice = sTokenPrice.times(bnbPrice)
+      
+      console.log(unlockFundsInSec.toFormat(18))
+      console.log(rTokenPrice.toFormat(18))
+      console.log(new BigNumber(totalStakedAmount).toFormat(18))
+      console.log(sTokenPrice.toFormat(18))
+      console.log(secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
+
+      setFarmDPY(secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
+    }
+  }, [sFarm, totalStakedAmount, unlockFundsInSec, bnbPrice])
+
+
   const [val, setVal] = useState('')
   const [pendingTx, setPendingTx] = useState(false)
   const TranslateString = useI18n()
@@ -43,6 +74,7 @@ const DepositModal: React.FC<DepositModalProps> = ({ max, onConfirm, onDismiss, 
         symbol={tokenName}
         depositFeeBP={depositFeeBP}
       />
+      <div style={{ color: 'white', margin: 'auto', paddingTop: '10px' }}>DPY: {farmDPY}%</div>
       <ModalActions>
         <Button variant="secondary" onClick={onDismiss} style={{ width: '180px' }}>
           {TranslateString(462, 'Cancel')}

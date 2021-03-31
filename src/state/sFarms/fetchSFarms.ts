@@ -3,6 +3,7 @@ import erc20 from 'config/abi/erc20.json'
 import sFarmsConfig from 'config/constants/sfarms'
 import { getPolarContractAddress } from 'utils/addressHelpers'
 import multicall from 'utils/multicall'
+import { QuoteToken } from '../../config/constants/types'
 
 const CHAIN_ID = process.env.REACT_APP_CHAIN_ID
 
@@ -16,72 +17,94 @@ const fetchSFarms = async () => {
           name: 'balanceOf',
           params: [sFarmConfig.sLpAddresses[CHAIN_ID]],
         },
-        // Balance of rewarding token in the LP contract
-        {
-          address: sFarmConfig.rTokenAddresses[CHAIN_ID],
-          name: 'balanceOf',
-          params: [sFarmConfig.rLpAddresses[CHAIN_ID]],
-        },
-        // Staking Quote token decimals
-        {
-          address: sFarmConfig.sQuoteTokenAdresses[CHAIN_ID],
-          name: 'decimals',
-        },
-        // Rewarding Quote token decimals
-        {
-          address: sFarmConfig.rQuoteTokenAdresses[CHAIN_ID],
-          name: 'decimals',
-        },
-        // Total supply of Staking LP tokens
-        {
-          address: sFarmConfig.sLpAddresses[CHAIN_ID],
-          name: 'totalSupply',
-        },
-        // Total supply of Rewarding LP tokens
-        {
-          address: sFarmConfig.rLpAddresses[CHAIN_ID],
-          name: 'totalSupply',
-        },
         // Balance of staking quote token on LP contract
         {
           address: sFarmConfig.sQuoteTokenAdresses[CHAIN_ID],
           name: 'balanceOf',
           params: [sFarmConfig.sLpAddresses[CHAIN_ID]],
         },
-        // Balance of rewarding quote token on LP contract
+        // Total supply of staking LP tokens
+        {
+          address: sFarmConfig.sLpAddresses[CHAIN_ID],
+          name: 'totalSupply',
+        },
+        // staking Token decimals
+        {
+          address: sFarmConfig.sTokenAddresses[CHAIN_ID],
+          name: 'decimals',
+        },
+        // staking Quote token decimals
+        {
+          address: sFarmConfig.sQuoteTokenAdresses[CHAIN_ID],
+          name: 'decimals',
+        },
+
+        // Balance of reward token in the LP contract
+        {
+          address: sFarmConfig.rTokenAddresses[CHAIN_ID],
+          name: 'balanceOf',
+          params: [sFarmConfig.rLpAddresses[CHAIN_ID]],
+        },
+        // Balance of reward quote token on LP contract
         {
           address: sFarmConfig.rQuoteTokenAdresses[CHAIN_ID],
           name: 'balanceOf',
           params: [sFarmConfig.rLpAddresses[CHAIN_ID]],
         },
-        // Staking Token decimals
+        // Total supply of reward LP tokens
         {
-          address: sFarmConfig.sTokenAddresses[CHAIN_ID],
-          name: 'decimals',
+          address: sFarmConfig.rLpAddresses[CHAIN_ID],
+          name: 'totalSupply',
         },
-        // Rewarding token decimals
+        // reward Token decimals
         {
           address: sFarmConfig.rTokenAddresses[CHAIN_ID],
+          name: 'decimals',
+        },
+        // reward Quote token decimals
+        {
+          address: sFarmConfig.rQuoteTokenAdresses[CHAIN_ID],
           name: 'decimals',
         },
       ]
 
       const [
         sTokenBalanceLP,
-        rTokenBalanceLP,
-        sQuoteTokenDecimals,
-        rQuoteTokenDecimals,
-        sLpTotalSupply,
-        rLpTotalSupply,
         sQuoteTokenBlanceLP,
-        rQuoteTokenBlanceLP,
+        sLpTotalSupply,
         sTokenDecimals,
+        sQuoteTokenDecimals,
+        rTokenBalanceLP,
+        rQuoteTokenBlanceLP,
+        rLpTotalSupply,
         rTokenDecimals,
+        rQuoteTokenDecimals,
       ] = await multicall(erc20, calls)
 
+      let sTokenPriceVsQuote;
+      if (sFarmConfig.sTokenSymbol === QuoteToken.BUSD && sFarmConfig.sQuoteTokenSymbol === QuoteToken.BUSD) {
+        sTokenPriceVsQuote = new BigNumber(1);
+      } else {
+        sTokenPriceVsQuote = new BigNumber(sQuoteTokenBlanceLP).div(new BigNumber(sTokenBalanceLP));
+      }
+      const sLpTokenPriceVsQuote = new BigNumber(sQuoteTokenBlanceLP).times(2).div(sLpTotalSupply)
+
+      let rTokenPriceVsQuote;
+      if (sFarmConfig.rTokenSymbol === QuoteToken.BUSD && sFarmConfig.rQuoteTokenSymbol === QuoteToken.BUSD) {
+        rTokenPriceVsQuote = new BigNumber(1);
+      } else {
+        rTokenPriceVsQuote = new BigNumber(rQuoteTokenBlanceLP).div(new BigNumber(rTokenBalanceLP));
+      }
+      const rLpTokenPriceVsQuote = new BigNumber(rQuoteTokenBlanceLP).times(2).div(rLpTotalSupply)
 
       return {
-        ...sFarmConfig
+        ...sFarmConfig,
+        
+        sTokenPriceVsQuote: sTokenPriceVsQuote.toJSON(),
+        sLpTokenPriceVsQuote: sLpTokenPriceVsQuote.toJSON(),
+        
+        rTokenPriceVsQuote: rTokenPriceVsQuote.toJSON(),
+        rLpTokenPriceVsQuote: rLpTokenPriceVsQuote.toJSON(),
       }
     }),
   )

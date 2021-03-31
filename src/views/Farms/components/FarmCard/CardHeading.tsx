@@ -41,6 +41,15 @@ const getIconLink = (lpLabel) => {
   return lpLabel
 }
 
+const getBackIconLink = (lpLabel) => {
+  const arr = lpLabel.split('-')
+  if (arr.length === 2) {
+    return iconLinks[arr[0]]
+  }
+
+  return "/images/galaxy/circle.png"
+}
+
 const CardHeading: React.FC<ExpandableSectionProps> = ({
   lpLabel,
   multiplier,
@@ -59,7 +68,7 @@ const CardHeading: React.FC<ExpandableSectionProps> = ({
           style={{ position: 'absolute', width: '30px', height: '30px', left: 0, zIndex: 1 }}
         />
         <div style={{ position: 'absolute', left: '8px', top: '8px', width: '55px' }}>
-          <Image src="/images/galaxy/circle.png" alt={tokenSymbol} width={55} height={55} />
+          <Image src={getBackIconLink(lpLabel)} alt={tokenSymbol} width={55} height={55} />
         </div>
       </AvatarDiv>
       <Flex flexDirection="column" alignItems="flex-end">

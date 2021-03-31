@@ -27,6 +27,23 @@ const useTokenBalance = (tokenAddress: string) => {
   return balance
 }
 
+export const useCakeBalanceOfAddress = (address: string) => {
+  const [balance, setBalance] = useState(new BigNumber(0))
+  const { slowRefresh } = useRefresh()
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      const cakeContract = getContract(cakeABI, getCakeAddress())
+      const bal = await cakeContract.methods.balanceOf(address).call()
+      setBalance(new BigNumber(bal))
+    }
+
+    fetchBalance()
+  }, [address, slowRefresh])
+
+  return balance
+}
+
 export const useTotalSupply = () => {
   const { slowRefresh } = useRefresh()
   const [totalSupply, setTotalSupply] = useState<BigNumber>()

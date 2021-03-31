@@ -125,47 +125,59 @@ interface FarmCardProps {
 const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice, ethereum, account }) => {
   const TranslateString = useI18n()
 
-  
-  const {totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked, unlockFundsInSec } = useSFarmUser(sFarm.pid)
+
+  const { totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalStakedAmount, unlockFundsInSec } = useSFarmUser(sFarm.pid)
 
   const [showExpandableSection, setShowExpandableSection] = useState(false)
   const [farmAPY, setFarmAPY] = useState("...")
+  const [totalStakedPrice, setTotalStakedPrice] = useState("0")
 
   const [timeExpiryState, setTimeExpiryState] = useState("...")
   useEffect(() => {
     const secondsInYear = new BigNumber(31536000)
-    if(totalLocked) {
-      setFarmAPY(secondsInYear.times(unlockFundsInSec).div(10**18).times(bnbPrice).div(totalLocked).toFormat(2))
+    if (sFarm && totalStakedAmount.isGreaterThan(0)) {
+      let rTokenPrice = sFarm.isRewardSingleToken ? new BigNumber(sFarm.rTokenPriceVsQuote) : new BigNumber(sFarm.rLpTokenPriceVsQuote);
+      if (sFarm.rQuoteTokenSymbol === 'BNB')
+        rTokenPrice = rTokenPrice.times(bnbPrice)
+
+      let sTokenPrice = sFarm.isStakeSingleToken ? new BigNumber(sFarm.sTokenPriceVsQuote) : new BigNumber(sFarm.sLpTokenPriceVsQuote);
+      if (sFarm.sQuoteTokenSymbol === 'BNB')
+        sTokenPrice = sTokenPrice.times(bnbPrice)
+
+      // console.log(unlockFundsInSec.toFormat(18))
+      // console.log(rTokenPrice.toFormat(18))
+      // console.log(new BigNumber(totalStakedAmount).toFormat(18))
+      // console.log(sTokenPrice.toFormat(18))
+      // console.log(secondsInYear.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
+
+      setTotalStakedPrice(totalStakedAmount.times(sTokenPrice).div(10 ** 18).toFormat(2))
+      setFarmAPY(secondsInYear.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
     }
 
-    if(timeExpiry > 0) {
-      const timeDifference  = Math.floor(timeExpiry -  (Date.now() / 1000 ) )
-      if(timeDifference > 0) {
-        const days = Math.floor(timeDifference / (60 * 60 * 24 ) )
+    if (timeExpiry > 0) {
+      const timeDifference = Math.floor(timeExpiry - (Date.now() / 1000))
+      if (timeDifference > 0) {
+        const days = Math.floor(timeDifference / (60 * 60 * 24))
         setTimeExpiryState(`${days} Days`);
       } else {
         setTimeExpiryState("Expired");
       }
     }
-  }, [totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalLocked, unlockFundsInSec, bnbPrice])
+  }, [sFarm, totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalStakedAmount, unlockFundsInSec, bnbPrice])
   // const isCommunityFarm = communityFarms.includes(sFarm.tokenSymbol)
   // We assume the token name is coin pair + lp e.g. CAKE-BNB LP, LINK-BNB LP,
   // NAR-CAKE LP. The images should be cake-bnb.svg, link-bnb.svg, nar-cake.svg
   // const farmImage = sFarm.lpSymbol.split(' ')[0].toLocaleLo\werCase()
   const totalValue: BigNumber = new BigNumber(100)
 
-  const totalValueFormated = totalValue
-    ? `$${Number(totalValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-    : '-'
-
   const stakeLabel = sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
 
-    // sFarm.apy &&
-    // sFarm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
-    //   minimumFractionDigits: 2,
-    //   maximumFractionDigits: 2,
-    // })
+  // sFarm.apy &&
+  // sFarm.apy.times(new BigNumber(100)).toNumber().toLocaleString(undefined, {
+  //   minimumFractionDigits: 2,
+  //   maximumFractionDigits: 2,
+  // })
 
   return (
     <FCardBorder>
@@ -183,14 +195,14 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
           <Text bold style={{ display: 'flex', alignItems: 'center', fontSize: '16px' }}>
             {sFarm.apy ? (
               <>
-                <ApyButton
+                {/* <ApyButton
                   lpLabel={sFarm.sLpSymbol}
                   quoteTokenAdresses={sFarm.sQuoteTokenAdresses}
                   quoteTokenSymbol={sFarm.sQuoteTokenSymbol}
                   tokenAddresses={sFarm.sTokenAddresses}
                   cakePrice={cakePrice}
                   apy={sFarm.apy}
-                />
+                /> */}
                 {farmAPY}%
               </>
             ) : (
@@ -238,8 +250,8 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
               ? `https://bscscan.com/token/${sFarm.sTokenSymbol[process.env.REACT_APP_CHAIN_ID]}`
               : `https://bscscan.com/token/${sFarm.sLpSymbol[process.env.REACT_APP_CHAIN_ID]}`
           }
-          totalValueFormated={totalValueFormated}
-          lpLabel={sFarm.sLpSymbol}
+          totalValueFormated={totalStakedPrice}
+          lpLabel={sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol}
           quoteTokenAdresses={sFarm.sQuoteTokenAdresses}
           quoteTokenSymbol={sFarm.sQuoteTokenSymbol}
           tokenAddresses={sFarm.sTokenAddresses}

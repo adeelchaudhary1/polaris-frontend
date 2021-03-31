@@ -4,6 +4,7 @@ import novapool from 'config/abi/novapool.json'
 
 import multicall from 'utils/multicall'
 import sFarmsConfig from 'config/constants/sfarms'
+import contracts from 'config/constants/contracts'
 
 const CHAIN_ID = process.env.REACT_APP_CHAIN_ID
 
@@ -18,6 +19,19 @@ export const fetchSFarmUserAllowances = async (account: string) => {
     return new BigNumber(lpBalance).toJSON()
   })
   return parsedLpAllowances
+  
+}
+
+export const fetchSFarmUserPolarAllowances = async (account: string) => {
+  const calls = sFarmsConfig.map((farm) => {
+    return { address: contracts.polar[CHAIN_ID], name: 'allowance', params: [account, farm.poolAddress] }
+  })
+
+  const rawPolarAllowances = await multicall(erc20ABI, calls)
+  const parsedPolarAllowances = rawPolarAllowances.map((polarAllowance) => {
+    return new BigNumber(polarAllowance).toJSON()
+  })
+  return parsedPolarAllowances
   
 }
 
@@ -66,6 +80,20 @@ export const fetchSFarmUserStakedBalances = async (account: string) => {
   return parsedLpAllowances
 }
 
+export const fetchSFarmStakedBalances = async () => {
+  const calls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'totalStaked',
+    }
+  })
+
+  const rawStakedAmount = await multicall(novapool, calls)
+  const parsedStakedAmount = rawStakedAmount.map((stakedAmount) => {
+    return new BigNumber(stakedAmount).toJSON()
+  })
+  return parsedStakedAmount
+}
 
 
 export const fetchSFarmUserEarnings = async (account: string) => {
@@ -118,14 +146,10 @@ export const fetchTotalEarnings = async () => {
   const rawTotalLocked = await multicall(novapool, callsForTotalLocked)
   const rawTotalUnLocked = await multicall(novapool, callsForTotalUnlocked)
 
-  const parsedRewardEaring = []
-  for(let i = 0; i < rawTotalLocked.length; i++) {
-    const bigNumberTotalLocked = new BigNumber(rawTotalLocked[i])
-    const bigNumberTotalUnLocked = new BigNumber(rawTotalUnLocked[i])
-
-    parsedRewardEaring.push(bigNumberTotalLocked.plus(bigNumberTotalUnLocked))
-  }
-
+  const parsedRewardEaring = rawTotalLocked.map((totalLocked, i) => {
+    return new BigNumber(totalLocked).plus(new BigNumber(rawTotalUnLocked[i])).toJSON()
+  })
+  
   return parsedRewardEaring
 }
 

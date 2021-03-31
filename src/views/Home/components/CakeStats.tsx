@@ -3,7 +3,7 @@ import { Card, CardBody, Heading, Text } from '@pancakeswap-libs/uikit'
 import BigNumber from 'bignumber.js/bignumber'
 import styled from 'styled-components'
 import { getBalanceNumber } from 'utils/formatBalance'
-import { useTotalSupply, useBurnedBalance } from 'hooks/useTokenBalance'
+import { useTotalSupply, useBurnedBalance, useCakeBalanceOfAddress } from 'hooks/useTokenBalance'
 import useI18n from 'hooks/useI18n'
 import { getCakeAddress } from 'utils/addressHelpers'
 import CardValue from './CardValue'
@@ -29,10 +29,11 @@ const Row = styled.div`
 const CakeStats = () => {
   const TranslateString = useI18n()
   const totalSupply = useTotalSupply()
+  const lockedCake = useCakeBalanceOfAddress('0x45b95c37662a136f6f5b38893ef24209577ed45c')
   const burnedBalance = useBurnedBalance(getCakeAddress())
   const farms = useFarms()
   const eggPrice = usePriceCakeBusd()
-  const circSupply = totalSupply ? totalSupply.minus(burnedBalance) : new BigNumber(0)
+  const circSupply = totalSupply ? totalSupply.minus(burnedBalance).minus(lockedCake) : new BigNumber(0)
   const cakeSupply = getBalanceNumber(circSupply)
   const marketCap = eggPrice.times(circSupply)
 
@@ -50,11 +51,11 @@ const CakeStats = () => {
             POLAR STATS
           </Heading>
           <Row>
-            <StyledText fontSize="18px">{TranslateString(50, 'TOTAL POLAR SUPPLY')}</StyledText>
+            <StyledText fontSize="18px">{TranslateString(50, 'TOTAL CIRC POLAR SUPPLY')}</StyledText>
             {cakeSupply && <CardValue fontSize="18px" value={cakeSupply} decimals={0} />}
           </Row>
           <Row>
-            <StyledText fontSize="18px">{TranslateString(999, 'MARKET CAP')}</StyledText>
+            <StyledText fontSize="18px">{TranslateString(999, 'CIRC MARKET CAP')}</StyledText>
             <CardValue fontSize="18px" value={getBalanceNumber(marketCap)} decimals={0} prefix="$" />
           </Row>
           <Row>

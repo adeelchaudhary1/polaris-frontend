@@ -29,7 +29,7 @@ const Farms: React.FC<FarmsProps> = (farmsProps) => {
   const bnbPrice = usePriceBnbBusd()
   const { account, ethereum }: { account: string; ethereum: provider } = useWallet()
   const { majorMode } = farmsProps
-
+  
   const dispatch = useDispatch()
   const { fastRefresh } = useRefresh()
   useEffect(() => {
@@ -78,7 +78,7 @@ const Farms: React.FC<FarmsProps> = (farmsProps) => {
         return { ...farm, apy }
       })
       return farmsToDisplayWithAPY.map((farm, index) => {
-        if (majorModeP && index < 3)
+        if (majorModeP && index < 5)
           return (
             <FarmCard
               key={farm.pid}
@@ -91,7 +91,7 @@ const Farms: React.FC<FarmsProps> = (farmsProps) => {
               borderEnable
             />
           )
-        if (farm.pid !== 20)
+        if (farm.pid !== 21)
           return (
             <FarmCard
               key={farm.pid}

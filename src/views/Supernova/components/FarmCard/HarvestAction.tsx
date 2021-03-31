@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import BigNumber from 'bignumber.js'
+import { provider } from 'web3-core'
 import { Button, Flex, Heading, useModal } from '@pancakeswap-libs/uikit'
 import useI18n from 'hooks/useI18n'
 import { getBalanceNumber } from 'utils/formatBalance'
@@ -13,7 +14,8 @@ interface FarmCardActionsProps {
   earnings?: BigNumber
   pid: number
   stakedBalance: BigNumber,
-  account: string
+  account: string,
+  ethereum?: provider
 }
 
 const BalanceAndCompound = styled.div`
@@ -23,7 +25,7 @@ const BalanceAndCompound = styled.div`
   flex-direction: column;
 `
 
-const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance, earnings, pid }) => {
+const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance, earnings, pid, ethereum }) => {
   const sFarm = sfarms.find(sFarmObj => sFarmObj.pid === pid)
   const TranslateString = useI18n()
   const [pendingTx, setPendingTx] = useState(false)
@@ -45,7 +47,7 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
     }
   }, [account])
   
-  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} />)
+  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} ethereum={ethereum}/>)
 
   return (
     <Flex mb="8px" justifyContent="space-between" alignItems="center">
