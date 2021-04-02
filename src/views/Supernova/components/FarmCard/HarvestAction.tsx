@@ -47,7 +47,7 @@ const HarvestAction: React.FC<FarmCardActionsProps> = ({ account, stakedBalance,
     }
   }, [account])
   
-  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.sLpSymbol} ethereum={ethereum}/>)
+  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol} ethereum={ethereum}/>)
 
   return (
     <Flex mb="8px" justifyContent="space-between" alignItems="center">

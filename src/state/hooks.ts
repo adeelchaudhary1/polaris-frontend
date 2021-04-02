@@ -145,6 +145,8 @@ export const useSFarmUser = (pid) => {
     earningMultiplier: farm.userData ? farm.userData.earningMultiplier: new BigNumber(1),
     totalLocked: farm.userData ? farm.userData.totalLocked: new BigNumber(1),
     unlockFundsInSec: farm.userData ?  new BigNumber(farm.userData.unlockFundsInSec): new BigNumber(0),
+    maxBonusMultiplier: farm.userData ?  new BigNumber(farm.userData.maxBonusMultiplier): new BigNumber(0),
+    currentBonusMultiplier: farm.userData ?  new BigNumber(farm.userData.currentBonusMultiplier): new BigNumber(0),    
   }
 }
 

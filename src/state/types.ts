@@ -48,6 +48,8 @@ export interface SFarm extends SFarmConfig {
     earningMultiplier: BigNumber
     totalLocked: BigNumber
     unlockFundsInSec: BigNumber
+    maxBonusMultiplier: BigNumber
+    currentBonusMultiplier: BigNumber
   }
 }
 

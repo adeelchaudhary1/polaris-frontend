@@ -14,6 +14,8 @@ import {
   fetchPolarBonusMultiplier,
   fetchTotalLocked,
   fetchUnlockFundInSec,
+  fetchSFarmMaxBonusMultiplier,
+  fetchSFarmUserCurrentBonusMultiplier,
 } from './fetchSFarmUser'
 import { SFarmsState, SFarm } from '../types'
 
@@ -61,6 +63,8 @@ export const fetchSFarmUserDataAsync = (account) => async (dispatch) => {
   const totalLocked = await fetchTotalLocked()
   const timeExpiry = await fetchTimeExpire()
   const unlockFundsInSec = await fetchUnlockFundInSec(0)
+  const maxBonusMultiplier = await fetchSFarmMaxBonusMultiplier()
+  const userCurrentBonusMultiplier = await fetchSFarmUserCurrentBonusMultiplier(account)
 
   const arrayOfUserDataObjects = userFarmAllowances.map((farmAllowance, index) => {
     return {
@@ -76,7 +80,9 @@ export const fetchSFarmUserDataAsync = (account) => async (dispatch) => {
       timeExpiry: timeExpiry[index],
       polarBonusMultiplier: polarBonusMultiplier[index],
       totalLocked: totalLocked[index],
-      unlockFundsInSec: unlockFundsInSec[index]
+      unlockFundsInSec: unlockFundsInSec[index],      
+      maxBonusMultiplier: maxBonusMultiplier[index],
+      currentBonusMultiplier: userCurrentBonusMultiplier[index]
     }
   })
 

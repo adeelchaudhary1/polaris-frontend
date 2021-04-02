@@ -126,7 +126,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
   const TranslateString = useI18n()
 
 
-  const { totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalStakedAmount, unlockFundsInSec } = useSFarmUser(sFarm.pid)
+  const { totalReward, timeExpiry, polarBonusMultiplier, earningMultiplier, totalStakedAmount, unlockFundsInSec, maxBonusMultiplier, currentBonusMultiplier } = useSFarmUser(sFarm.pid)
 
   const [showExpandableSection, setShowExpandableSection] = useState(false)
   const [farmAPY, setFarmAPY] = useState("...")
@@ -155,10 +155,10 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
     }
 
     if (timeExpiry > 0) {
-      const timeDifference = Math.floor(timeExpiry - (Date.now() / 1000))
-      if (timeDifference > 0) {
-        const days = Math.floor(timeDifference / (60 * 60 * 24))
-        setTimeExpiryState(`${days} Days`);
+      const timeDifference = new BigNumber(timeExpiry).minus(new BigNumber(Date.now()).div(1000))
+      if (timeDifference.isGreaterThan(0)) {
+        const days = timeDifference.div(60 * 60 * 24)
+        setTimeExpiryState(`${days.toFormat(1)} Days`);
       } else {
         setTimeExpiryState("Expired");
       }
@@ -185,7 +185,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         stakeLabel={stakeLabel}
         // multiplier={sFarm.multiplier}
         // depositFee={sFarm.depositFeeBP}
-        multiplier={`${getPercentNumber(polarBonusMultiplier)}x`}
+        multiplier={`${maxBonusMultiplier.toFormat(1)}x`}
         depositFee={0}
         tokenSymbol={sFarm.sTokenSymbol}
       />
@@ -230,9 +230,9 @@ const FarmCard: React.FC<FarmCardProps> = ({ sFarm, removed, cakePrice, bnbPrice
         </Text>
       </Flex>
       <Flex justifyContent="space-between">
-        <Text color="#ABABAB">{TranslateString(20001, 'Current Multiplier')}:</Text>
+        <Text color="#ABABAB">{TranslateString(20001, 'Your Time Bonus')}:</Text>
         <Text bold style={{ fontSize: '16px' }}>
-          {getPercentNumber(earningMultiplier)}x
+          {currentBonusMultiplier.toFormat(2)}x
         </Text>
       </Flex>
       <CardActionsContainer sFarm={sFarm} ethereum={ethereum} account={account} />

@@ -46,13 +46,14 @@ const HarvestModal: React.FC<HarvestModalProps> = ({ sFarm, onConfirm, onDismiss
       const maxHarvestCalculated = (Number(harvestResult[0].earning) / 10 ** 18)
       const maxMultiplier = (Number(harvestResult[0].multiplier) / 10 ** 18)
 
-      setEstimatedHarvestAmount(maxHarvestCalculated.toFixed(4))
       setBonusMultiplier(maxMultiplier.toFixed(4))
+      setEstimatedHarvestAmount(maxHarvestCalculated.toFixed(4))
 
     } catch (Error) {
       // eslint-disable-next-line no-console
       console.log(Error)
-      setEstimatedHarvestAmount(unStakingAmount.toFixed(4))
+      setBonusMultiplier('N/A')
+      setEstimatedHarvestAmount('N/A')
     }
   }, [account, sFarm.poolAddress])
 

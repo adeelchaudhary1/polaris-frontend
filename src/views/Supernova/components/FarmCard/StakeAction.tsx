@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
+import { provider } from 'web3-core'
 import { Button, Flex, Heading, IconButton, AddIcon, MinusIcon, useModal } from '@pancakeswap-libs/uikit'
 import useI18n from 'hooks/useI18n'
 import { useSuperNovaUnstake } from 'hooks/useUnstake'
@@ -19,6 +20,7 @@ interface FarmCardActionsProps {
   tokenName?: string
   pid?: number
   depositFeeBP?: number
+  ethereum?: provider
 }
 
 const IconButtonWrapper = styled.div`
@@ -28,11 +30,11 @@ const IconButtonWrapper = styled.div`
   }
 `
 
-const StakeAction: React.FC<FarmCardActionsProps> = ({ stakedBalance, tokenBalance, tokenName, pid, depositFeeBP}) => {
-  const farm = sfarms.find(sfarm => sfarm.pid === pid)
+const StakeAction: React.FC<FarmCardActionsProps> = ({ stakedBalance, tokenBalance, tokenName, pid, depositFeeBP, ethereum}) => {
+  const sFarm = sfarms.find(sfarm => sfarm.pid === pid)
   const TranslateString = useI18n()
-  const { onStake } = useSuperNovaStake(farm.poolAddress)
-  const { onUnstake } = useSuperNovaUnstake(farm.poolAddress)
+  const { onStake } = useSuperNovaStake(sFarm.poolAddress)
+  const { onUnstake } = useSuperNovaUnstake(sFarm.poolAddress)
   const { account } = useWallet()
 
   const [polarMaxBalance, setPolarMaxBalance] = useState(new BigNumber(0))
@@ -54,7 +56,7 @@ const StakeAction: React.FC<FarmCardActionsProps> = ({ stakedBalance, tokenBalan
   const [onPresentWithdraw] = useModal(
     <WithdrawModal max={stakedBalance} onConfirm={onUnstake} tokenName={tokenName} />,
   )
-  const [onPresentHarvest] = useModal(<HarvestModal sFarm={farm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={farm.sLpSymbol} />)
+  const [onPresentHarvest] = useModal(<HarvestModal sFarm={sFarm} max={stakedBalance} maxPolar={polarMaxBalance} onConfirm={onUnstake} tokenName={sFarm.isStakeSingleToken ? sFarm.sTokenSymbol : sFarm.sLpSymbol}  ethereum={ethereum}/>)
 
   const renderStakingButtons = () => {
     return rawStakedBalance === 0 ? (

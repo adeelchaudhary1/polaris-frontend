@@ -6,12 +6,17 @@ import multicall from 'utils/multicall'
 import sFarmsConfig from 'config/constants/sfarms'
 import contracts from 'config/constants/contracts'
 
+import moment from 'moment'
+
 const CHAIN_ID = process.env.REACT_APP_CHAIN_ID
 
 export const fetchSFarmUserAllowances = async (account: string) => {
   const calls = sFarmsConfig.map((farm) => {
-    const lpContractAddress = farm.sLpAddresses[CHAIN_ID]
-    return { address: lpContractAddress, name: 'allowance', params: [account, farm.poolAddress] }
+    let contractAddress = farm.sLpAddresses[CHAIN_ID]
+    if (farm.isStakeSingleToken)
+      contractAddress = farm.sTokenAddresses[CHAIN_ID]
+
+    return { address: contractAddress, name: 'allowance', params: [account, farm.poolAddress] }
   })
 
   const rawLpAllowances = await multicall(erc20ABI, calls)
@@ -19,7 +24,7 @@ export const fetchSFarmUserAllowances = async (account: string) => {
     return new BigNumber(lpBalance).toJSON()
   })
   return parsedLpAllowances
-  
+
 }
 
 export const fetchSFarmUserPolarAllowances = async (account: string) => {
@@ -32,7 +37,7 @@ export const fetchSFarmUserPolarAllowances = async (account: string) => {
     return new BigNumber(polarAllowance).toJSON()
   })
   return parsedPolarAllowances
-  
+
 }
 
 export const fetchUnlockFundInSec = async (timestamp: number) => {
@@ -49,9 +54,12 @@ export const fetchUnlockFundInSec = async (timestamp: number) => {
 
 export const fetchSFarmUserTokenBalances = async (account: string) => {
   const calls = sFarmsConfig.map((farm) => {
-    const lpContractAddress = farm.sLpAddresses[CHAIN_ID]
+    let contractAddress = farm.sLpAddresses[CHAIN_ID]
+    if (farm.isStakeSingleToken)
+      contractAddress = farm.sTokenAddresses[CHAIN_ID]
+
     return {
-      address: lpContractAddress,
+      address: contractAddress,
       name: 'balanceOf',
       params: [account],
     }
@@ -96,6 +104,96 @@ export const fetchSFarmStakedBalances = async () => {
 }
 
 
+export const fetchSFarmMaxBonusMultiplier = async () => {
+  const bonusMaxCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'bonusMax',
+    }
+  })
+
+  const bonusMinCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'bonusMin',
+    }
+  })
+
+  const bonusMaxs = await multicall(novapool, bonusMaxCalls)
+  const bonusMins = await multicall(novapool, bonusMinCalls)
+  const maxBonusMultipliers = bonusMaxs.map((bonusMax, i) => {
+    return new BigNumber(bonusMax).div(new BigNumber(bonusMins[i])).toJSON()
+  })
+  return maxBonusMultipliers
+}
+
+
+export const fetchSFarmUserCurrentBonusMultiplier = async (account: string) => {
+  const bonusMaxCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'bonusMax',
+    }
+  })
+
+  const bonusMinCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'bonusMin',
+    }
+  })
+
+  const bonusPeriodCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'bonusPeriod',
+    }
+  })
+
+  const stakeCountCalls = sFarmsConfig.map((farm) => {
+    return {
+      address: farm.poolAddress,
+      name: 'stakeCount',
+      params: [account],
+    }
+  })
+
+  const bonusMaxs = await multicall(novapool, bonusMaxCalls)
+  const bonusMins = await multicall(novapool, bonusMinCalls)
+  const bonusPeriods = await multicall(novapool, bonusPeriodCalls)
+  const stakeCounts = await multicall(novapool, stakeCountCalls)
+
+  const currentTimeStamp = new BigNumber(moment().unix())
+
+  const currentBonusMultipliers = await Promise.all(bonusMaxs.map( 
+    async (bonusMax, i) => {
+      let result = new BigNumber(0);
+
+      const bonusDiff = new BigNumber(bonusMax).minus(new BigNumber(bonusMins[i]))
+      const bonusPeriod = new BigNumber(bonusPeriods[i])
+      const stakeCount = Number(stakeCounts[i])
+
+      if (stakeCount >= 1) {
+        const userFirstStakeInfoCalls = [{
+          address: sFarmsConfig[i].poolAddress,
+          name: 'userStakes',
+          params: [account, 0],
+        }]
+        const userFirstStakeInfos = await multicall(novapool, userFirstStakeInfoCalls)
+
+        const timePassed = currentTimeStamp.minus(new BigNumber(Number(userFirstStakeInfos[0][1])))
+        if (timePassed.isGreaterThan(bonusPeriod))
+          result = new BigNumber(bonusMax).div(new BigNumber(bonusMins[i]))
+        else
+          result = new BigNumber(1).plus(bonusDiff.times(timePassed).div(bonusPeriod))
+      }
+      return result.toJSON()
+    }
+  ))
+
+  return currentBonusMultipliers
+}
+
 export const fetchSFarmUserEarnings = async (account: string) => {
 
   const callsForStaking = sFarmsConfig.map((farm) => {
@@ -120,8 +218,8 @@ export const fetchSFarmUserEarnings = async (account: string) => {
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
     return {
-      earning : rewardEarningPreview[0].toString(),
-      multiplier : rewardEarningPreview[1].toString(),
+      earning: rewardEarningPreview[0].toString(),
+      multiplier: rewardEarningPreview[1].toString(),
     }
   })
   return parsedRewardEaring
@@ -149,7 +247,7 @@ export const fetchTotalEarnings = async () => {
   const parsedRewardEaring = rawTotalLocked.map((totalLocked, i) => {
     return new BigNumber(totalLocked).plus(new BigNumber(rawTotalUnLocked[i])).toJSON()
   })
-  
+
   return parsedRewardEaring
 }
 
@@ -184,8 +282,8 @@ export const fetchPolarBonusMultiplier = async () => {
 
 export const fetchTimeExpire = async () => {
   const parsedTimeExpires = []
-  for(let k =0; k< sFarmsConfig.length; k++)  {
-    const  farm  = sFarmsConfig[k]
+  for (let k = 0; k < sFarmsConfig.length; k++) {
+    const farm = sFarmsConfig[k]
     const callsForFundingCount = [
       {
         address: farm.poolAddress,
@@ -229,8 +327,8 @@ export const fetchSFarmUserHarvestEarning = async (account: string, tokensForUns
   const rawRewardEarning = await multicall(novapool, calls)
   const parsedRewardEaring = rawRewardEarning.map((rewardEarningPreview) => {
     return {
-      earning : rewardEarningPreview[0].toString(),
-      multiplier : rewardEarningPreview[1].toString(),
+      earning: rewardEarningPreview[0].toString(),
+      multiplier: rewardEarningPreview[1].toString(),
     }
   })
   return parsedRewardEaring

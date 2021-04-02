@@ -21,15 +21,15 @@ const sfarms: SFarmConfig[] = [
       97: '',
       56: '0x1b96b92314c44b159149f7e0303511fb2fc4774f',
     },
-    rTokenSymbol: 'WBNB',
+    rTokenSymbol: 'wBNB',
     rTokenAddresses: {
       97: '',
       56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
     },
-    poolAddress: '0x0E632770fa8b2E3C00eCEA59b6B654d268c68109',
+    poolAddress: '0x4BFd63b1BcC546812ECa05748D1931610D64F232',
     rQuoteTokenSymbol: QuoteToken.BUSD,
     rQuoteTokenAdresses: contracts.busd,
-    isStakeSingleToken: false,
+    isStakeSingleToken: true,
     isRewardSingleToken: true
   }
 ]

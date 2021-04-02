@@ -6,7 +6,7 @@ import ModalActions from 'components/ModalActions'
 import TokenInput from 'components/TokenInput'
 import useI18n from 'hooks/useI18n'
 import { getFullDisplayBalance } from 'utils/formatBalance'
-import { useSFarmUser, useSFarmFromPid, usePriceBnbBusd } from 'state/hooks'
+import { useSFarmUser, useSFarmFromPid, usePriceBnbBusd, usePriceCakeBusd } from 'state/hooks'
 
 interface DepositModalProps {
   pid: number,
@@ -21,8 +21,17 @@ const DepositModal: React.FC<DepositModalProps> = ({ pid, max, onConfirm, onDism
   const sFarm = useSFarmFromPid(pid)
   const { totalStakedAmount, unlockFundsInSec } = useSFarmUser(pid)
   
-  const [farmDPY, setFarmDPY] = useState("...")
+  const [estimatedDailyRewards, setEstimatedDailyRewards] = useState("...")
+  const polarPrice = usePriceCakeBusd()
   const bnbPrice = usePriceBnbBusd()
+
+
+  const [val, setVal] = useState('')
+  const [pendingTx, setPendingTx] = useState(false)
+  const TranslateString = useI18n()
+  const fullBalance = useMemo(() => {
+    return getFullDisplayBalance(max)
+  }, [max])
 
   useEffect(() => {
     const secondsInDay = new BigNumber(86400)
@@ -35,23 +44,18 @@ const DepositModal: React.FC<DepositModalProps> = ({ pid, max, onConfirm, onDism
       if (sFarm.sQuoteTokenSymbol === 'BNB')
         sTokenPrice = sTokenPrice.times(bnbPrice)
       
-      console.log(unlockFundsInSec.toFormat(18))
-      console.log(rTokenPrice.toFormat(18))
-      console.log(new BigNumber(totalStakedAmount).toFormat(18))
-      console.log(sTokenPrice.toFormat(18))
-      console.log(secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
+      // console.log(unlockFundsInSec.toFormat(18))
+      // console.log(rTokenPrice.toFormat(18))
+      // console.log(new BigNumber(totalStakedAmount).toFormat(18))
+      // console.log(sTokenPrice.toFormat(18))
+      // console.log(secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
 
-      setFarmDPY(secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(100).toFormat(2))
+      const stakeValue = val === '' ? 0 : new BigNumber(val)
+      let estimatedRewards = secondsInDay.times(unlockFundsInSec).div(10 ** 6).times(rTokenPrice).div(totalStakedAmount).div(sTokenPrice).times(stakeValue)
+      estimatedRewards = estimatedRewards.times(sTokenPrice).div(rTokenPrice)
+      setEstimatedDailyRewards(estimatedRewards.toFormat(4))
     }
-  }, [sFarm, totalStakedAmount, unlockFundsInSec, bnbPrice])
-
-
-  const [val, setVal] = useState('')
-  const [pendingTx, setPendingTx] = useState(false)
-  const TranslateString = useI18n()
-  const fullBalance = useMemo(() => {
-    return getFullDisplayBalance(max)
-  }, [max])
+  }, [sFarm, totalStakedAmount, unlockFundsInSec, polarPrice, bnbPrice, val])
 
   const handleChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -74,7 +78,7 @@ const DepositModal: React.FC<DepositModalProps> = ({ pid, max, onConfirm, onDism
         symbol={tokenName}
         depositFeeBP={depositFeeBP}
       />
-      <div style={{ color: 'white', margin: 'auto', paddingTop: '10px' }}>DPY: {farmDPY}%</div>
+      <div style={{ color: 'white', margin: 'auto', paddingTop: '10px' }}>Estimated Daily Rewards: {estimatedDailyRewards} {sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol}</div>
       <ModalActions>
         <Button variant="secondary" onClick={onDismiss} style={{ width: '180px' }}>
           {TranslateString(462, 'Cancel')}

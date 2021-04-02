@@ -28,11 +28,10 @@ interface FarmCardActionsProps {
 const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account }) => {
   const TranslateString = useI18n()
   const [requestedApproval, setRequestedApproval] = useState(false)
-  const { pid, sLpAddresses: lpAddresses, rTokenAddresses: tokenAddresses, depositFeeBP } = useSFarmFromPid(sFarm.pid)
+  const { pid, sTokenAddresses, sLpAddresses: lpAddresses, depositFeeBP } = useSFarmFromPid(sFarm.pid)
   const { allowance, tokenBalance, stakedBalance, earnings, totalReward } = useSFarmUser(pid)
-  const lpAddress = lpAddresses[process.env.REACT_APP_CHAIN_ID]
-  const tokenAddress = tokenAddresses[process.env.REACT_APP_CHAIN_ID]
-  const lpName = sFarm.sLpSymbol.toUpperCase()
+  const lpAddress = sFarm.isStakeSingleToken ? sTokenAddresses[process.env.REACT_APP_CHAIN_ID] : lpAddresses[process.env.REACT_APP_CHAIN_ID]
+  const lpName = sFarm.isStakeSingleToken ? sFarm.sTokenSymbol.toUpperCase() : sFarm.sLpSymbol.toUpperCase()
   const isApproved = account && allowance && allowance.isGreaterThan(0)
 
   const rewardLabel = sFarm.isRewardSingleToken ? sFarm.rTokenSymbol : sFarm.rLpSymbol
@@ -66,6 +65,7 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
         tokenName={lpName}
         pid={pid}
         depositFeeBP={depositFeeBP}
+        ethereum={ethereum}
       />
     ) : (
       <Button mt="8px" fullWidth disabled={requestedApproval} onClick={handleApprove}>
@@ -77,12 +77,12 @@ const CardActions: React.FC<FarmCardActionsProps> = ({ sFarm, ethereum, account 
   return (
     <Action>
       <Flex>
-        <Text bold textTransform="uppercase" color="white" fontSize="14px" pr="3px">
+        <Text bold color="white" fontSize="14px" pr="3px">
           {/* TODO: Is there a way to get a dynamic value here from useFarmFromSymbol? */}
           {rewardLabel}&nbsp;
         </Text>
         <Text bold textTransform="uppercase" color="white" fontSize="14px">
-          {TranslateString(999, 'Earned')}
+          {TranslateString(999, 'Earned (Estimated)')}
         </Text>
       </Flex>
       <HarvestAction account={account} stakedBalance={stakedBalance} earnings={earnings} pid={pid}  ethereum={ethereum}/>
